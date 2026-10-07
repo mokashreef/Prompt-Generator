@@ -27,5 +27,5 @@ Prompt Generator does not integrate with any analytics services, advertising net
 ### 5. Contact & Open Source
 Prompt Generator was designed and developed by Mohammad Abu Khashreef as part of the Code Elta6ur ecosystem.
 * Developer: [Mohammad Abu Khashreef](https://github.com/mokashreef)
-* Repository: [Prompt Generator on GitHub](https://github.com/mokashreef/prompt-generator)
+* Repository: [Prompt Generator on GitHub](https://github.com/mokashreef/Prompt-Generator)
 

@@ -20,8 +20,8 @@ When proposing any modification or new feature, please observe these inviolable 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/mokashreef/prompt-generator.git
-   cd prompt-generator
+   git clone https://github.com/mokashreef/Prompt-Generator.git
+   cd Prompt-Generator
    ```
 
 2. Run the test suite:

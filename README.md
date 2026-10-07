@@ -16,7 +16,7 @@
 [![Built by](https://img.shields.io/badge/Developer-Mohammad%20Abu%20Khashreef-orange.svg)](https://github.com/mokashreef)
 [![Ecosystem](https://img.shields.io/badge/Ecosystem-Code%20Elta6ur-blue.svg)](https://github.com/mokashreef)
 
-[🌐 Live Demo](https://mokashreef.github.io/prompt-generator/) • [🧩 Chrome Extension](#chrome-extension) • [📖 العربية](#نظرة-عامة-باللغة-العربية) • [💻 Local Setup](#installation--local-development)
+[🌐 Live Demo](https://mokashreef.github.io/Prompt-Generator/) • [🧩 Chrome Extension](#chrome-extension) • [📖 العربية](#نظرة-عامة-باللغة-العربية) • [💻 Local Setup](#installation--local-development)
 
 </div>
 
@@ -289,8 +289,8 @@ prompt-generator/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/mokashreef/prompt-generator.git
-cd prompt-generator
+git clone https://github.com/mokashreef/Prompt-Generator.git
+cd Prompt-Generator
 ```
 
 ### 2. Run Automated Tests

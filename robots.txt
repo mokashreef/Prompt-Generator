@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://codeelta6ur.github.io/prompt-generator/sitemap.xml
+Sitemap: https://mokashreef.github.io/Prompt-Generator/sitemap.xml

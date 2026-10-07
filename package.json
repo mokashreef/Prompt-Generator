@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "A lightweight, privacy-first local prompt generator and enhancer with a local Prompt Engine and Chrome Extension.",
   "author": "Mohammad Abu Khashreef (https://github.com/mokashreef)",
-  "homepage": "https://github.com/mokashreef/prompt-generator",
+  "homepage": "https://github.com/mokashreef/Prompt-Generator",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mokashreef/prompt-generator.git"
+    "url": "https://github.com/mokashreef/Prompt-Generator.git"
   },
   "license": "MIT",
   "type": "module",
