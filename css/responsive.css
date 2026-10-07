@@ -1,0 +1,214 @@
+/**
+ * Prompt Generator - Responsive Breakpoints & Mobile Optimization
+ * Strict mobile-first design with zero horizontal overflow.
+ */
+
+/* Tablets and small laptops (<= 1024px) */
+@media (max-width: 1024px) {
+  .workbench-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .output-card {
+    position: static;
+  }
+
+  .prompt-type-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+/* Mobile Devices (<= 768px) */
+@media (max-width: 768px) {
+  .site-header {
+    padding: 0.5rem 0;
+  }
+
+  .header-inner {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .brand-title {
+    font-size: 1rem;
+  }
+
+  .header-actions {
+    margin-inline-start: auto;
+    flex-wrap: wrap;
+  }
+
+  .btn-header span:not(.header-badge) {
+    display: none; /* Icon-only on mobile to conserve space */
+  }
+
+  .btn-header {
+    padding: 0.45rem;
+  }
+
+  /* Hero */
+  .hero-section {
+    padding: 2rem 0 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 1.65rem;
+  }
+
+  .hero-description {
+    font-size: 0.875rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .features-banner {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .hero-extension-callout {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  html[dir="ltr"] .hero-extension-callout {
+    text-align: center;
+  }
+
+  .hero-ext-actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* Controls */
+  .controls-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .category-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .search-box-wrapper {
+    max-width: 100%;
+    min-width: 100%;
+  }
+
+  /* Prompt Cards */
+  .prompt-type-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .type-card {
+    padding: 0.75rem;
+  }
+
+  .type-card-desc {
+    display: none; /* Hide description on mobile cards for density and clean scannability */
+  }
+
+  .type-card-title {
+    font-size: 0.8125rem;
+    white-space: normal;
+  }
+
+  /* Workbench Panel */
+  .workbench-panel {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .panel-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .config-select-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .enhancer-switch-bar {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .form-actions-bar {
+    flex-direction: column;
+  }
+
+  .btn-primary-generate {
+    width: 100%;
+  }
+
+  /* Output */
+  .output-meta-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .output-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-group {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .toolbar-group .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .btn-copy-main {
+    width: 100%;
+  }
+
+  /* Privacy Card */
+  .privacy-banner-card {
+    flex-direction: column;
+    padding: 1.25rem;
+  }
+
+  /* Footer */
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .footer-links {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+/* Very Small Screens (<= 400px) */
+@media (max-width: 400px) {
+  .prompt-type-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .segmented-label {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.25rem;
+  }
+}

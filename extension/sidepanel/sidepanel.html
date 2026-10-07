@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="theme-dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Generator - Side Panel</title>
+  <link rel="stylesheet" href="./sidepanel.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="sp-header">
+    <div class="sp-brand">
+      <div class="sp-logo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="4 17 10 11 4 5"></polyline>
+          <line x1="12" y1="19" x2="20" y2="19"></line>
+        </svg>
+      </div>
+      <div>
+        <h1 class="sp-title">Prompt Generator</h1>
+        <span class="sp-subtitle" data-i18n="extTagline">تحسين وهندسة البرومبتات فورياً</span>
+      </div>
+    </div>
+
+    <div class="sp-header-controls">
+      <button id="sp-btn-lang" class="sp-btn-icon" type="button" title="Switch Language">
+        <span id="sp-lang-text">EN</span>
+      </button>
+      <button id="sp-btn-theme" class="sp-btn-icon" type="button" title="Toggle Theme">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="sp-tabs">
+    <button class="sp-tab active" data-tab="editor" data-i18n="tabEditor">المحرر</button>
+    <button class="sp-tab" data-tab="history" data-i18n="tabHistory">السجل</button>
+    <button class="sp-tab" data-tab="privacy" data-i18n="tabSettings">الخصوصية</button>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="sp-main">
+    
+    <!-- Tab 1: Editor View -->
+    <section id="view-editor" class="sp-view active">
+      
+      <!-- Original Prompt Box -->
+      <div class="sp-card">
+        <div class="sp-card-header">
+          <label for="sp-original-input" class="sp-label" data-i18n="originalTitle">البرومبت الأصلي</label>
+          <div class="sp-card-meta">
+            <span id="sp-orig-count" class="sp-meta-count">0 كلمة</span>
+            <button id="sp-btn-clear-orig" class="sp-btn-ghost" type="button" title="Clear">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+        </div>
+        <textarea id="sp-original-input" class="sp-textarea" placeholder="الصق أو اكتب البرومبت هنا، أو حدد نصاً في أي صفحة واضغط بالزر الأيمن..." data-i18n-placeholder="originalPlaceholder" rows="3"></textarea>
+      </div>
+
+      <!-- Actions Bar -->
+      <div class="sp-actions-bar">
+        <span class="sp-actions-label" data-i18n="actionsHeading">طريقة التحسين:</span>
+        <div id="sp-actions-list" class="sp-actions-scroll">
+          <!-- Populated dynamically with 11 distinct actions -->
+        </div>
+      </div>
+
+      <!-- Quality Score & Detected Intent Pill -->
+      <div class="sp-status-bar">
+        <div class="sp-status-item">
+          <span class="sp-status-tag" data-i18n="qualityLabel">الجودة:</span>
+          <span id="sp-quality-badge" class="badge-quality">0%</span>
+        </div>
+        <div class="sp-status-item">
+          <span class="sp-status-tag">النية:</span>
+          <span id="sp-intent-badge" class="badge-intent">-</span>
+        </div>
+      </div>
+
+      <!-- Improved Prompt Box -->
+      <div class="sp-card">
+        <div class="sp-card-header">
+          <label for="sp-improved-output" class="sp-label" data-i18n="improvedTitle">البرومبت المحسّن</label>
+          <div class="sp-card-meta">
+            <button id="sp-btn-diff-toggle" class="sp-btn-ghost sp-btn-diff" type="button">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+              <span id="sp-diff-btn-text" data-i18n="btnShowDiff">عرض التغييرات</span>
+            </button>
+            <span id="sp-imp-count" class="sp-meta-count">0 كلمة</span>
+          </div>
+        </div>
+
+        <!-- Textarea Editor -->
+        <textarea id="sp-improved-output" class="sp-textarea sp-textarea-output" placeholder="سيظهر البرومبت المحسّن هنا فور اختيار العملية..." data-i18n-placeholder="improvedPlaceholder" rows="8"></textarea>
+        
+        <!-- Diff Container (Hidden by default) -->
+        <div id="sp-diff-view" class="sp-diff-view" style="display: none;"></div>
+      </div>
+
+      <!-- Action Buttons Row -->
+      <div class="sp-toolbar">
+        <button id="sp-btn-replace" class="sp-btn sp-btn-accent" type="button" title="Replace in active page selection">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <span data-i18n="btnReplace">استبدال في الصفحة</span>
+        </button>
+
+        <button id="sp-btn-copy" class="sp-btn sp-btn-primary" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          <span data-i18n="btnCopy">نسخ المحسّن</span>
+        </button>
+
+        <button id="sp-btn-swap" class="sp-btn sp-btn-secondary" type="button" title="Swap Original and Improved">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4"/><path d="m3 8 4-4 4 4"/><path d="M17 8v12"/><path d="m21 16-4 4-4-4"/></svg>
+          <span data-i18n="btnSwap">تبديل</span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- Tab 2: History View -->
+    <section id="view-history" class="sp-view">
+      <div class="sp-view-header">
+        <h3 class="sp-section-title" data-i18n="historyTitle">سجل العمليات</h3>
+        <button id="sp-btn-clear-history" class="sp-btn sp-btn-danger sp-btn-sm" type="button" data-i18n="btnClearHistory">مسح السجل</button>
+      </div>
+      <div id="sp-history-list" class="sp-history-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- Tab 3: Privacy & About View -->
+    <section id="view-privacy" class="sp-view">
+      <div class="sp-privacy-card">
+        <div class="sp-privacy-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3 class="sp-section-title" data-i18n="privacyBadge">محلي 100% • بدون أي AI API • خصوصية تامة</h3>
+        <p class="sp-privacy-text" data-i18n="privacyNotice">
+          تتم جميع عمليات تحسين وتعديل البرومبتات محلياً بنسبة 100% داخل متصفحك باستخدام قواعد هندسية ثابتة. لا يتم إرسال أي نصوص لأي خوادم خارجية أو خدمات ذكاء اصطناعي.
+        </p>
+        <div class="sp-privacy-meta">
+          <span>Manifest V3 Compliant</span>
+          <span>•</span>
+          <span>Zero Telemetry</span>
+          <span>•</span>
+          <span>Built by Mohammad Abu Khashreef • Code Elta6ur</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="sp-toast" class="sp-toast"></div>
+
+  <script type="module" src="./sidepanel.js"></script>
+</body>
+</html>

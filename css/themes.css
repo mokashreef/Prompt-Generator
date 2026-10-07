@@ -1,0 +1,119 @@
+/**
+ * Prompt Generator - Themes & Design Tokens
+ * Developer Tool Aesthetic: Slate / Zinc neutral palette, high contrast, crisp borders.
+ * Zero neon purple, zero AI sparkles, zero heavy glassmorphism.
+ */
+
+:root {
+  /* Common geometry & animation variables */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-arabic: 'IBM Plex Sans Arabic', 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, Menlo, Monaco, monospace;
+  
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-base: 220ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  --container-max: 1240px;
+}
+
+/* --------------------------------------------------
+   DARK THEME (Default)
+   Deep dark slate/zinc with crisp contrast and refined edges
+-------------------------------------------------- */
+html.theme-dark {
+  --bg-app: #090d16;
+  --bg-surface: #0f172a;
+  --bg-surface-elevated: #15203b;
+  --bg-surface-hover: #1e293b;
+  --bg-input: #0b1120;
+  --bg-input-focus: #0f172a;
+  --bg-card: #0f172a;
+  --bg-card-hover: #172342;
+  --bg-card-active: #1e293b;
+
+  --border-subtle: #1e293b;
+  --border-default: #2b3952;
+  --border-strong: #3b4e6f;
+  --border-focus: #3b82f6;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-inverse: #090d16;
+
+  --accent-primary: #3b82f6;
+  --accent-primary-hover: #2563eb;
+  --accent-primary-rgb: 59, 130, 246;
+  --accent-foreground: #ffffff;
+
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.12);
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.65);
+  --shadow-inner: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+
+  --code-bg: #060911;
+  --code-text: #e2e8f0;
+  --badge-bg: #1e293b;
+  --badge-text: #94a3b8;
+}
+
+/* --------------------------------------------------
+   LIGHT THEME
+   Crisp, clean, professional paper/metal finish
+-------------------------------------------------- */
+html.theme-light {
+  --bg-app: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  --bg-surface-hover: #e2e8f0;
+  --bg-input: #ffffff;
+  --bg-input-focus: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --bg-card-active: #f1f5f9;
+
+  --border-subtle: #e2e8f0;
+  --border-default: #cbd5e1;
+  --border-strong: #94a3b8;
+  --border-focus: #2563eb;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-inverse: #ffffff;
+
+  --accent-primary: #2563eb;
+  --accent-primary-hover: #1d4ed8;
+  --accent-primary-rgb: 37, 99, 235;
+  --accent-foreground: #ffffff;
+
+  --color-success: #059669;
+  --color-success-bg: rgba(5, 150, 105, 0.1);
+  --color-warning: #d97706;
+  --color-warning-bg: rgba(217, 119, 6, 0.1);
+  --color-danger: #dc2626;
+  --color-danger-bg: rgba(220, 38, 38, 0.1);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.12);
+  --shadow-inner: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  --code-bg: #f1f5f9;
+  --code-text: #0f172a;
+  --badge-bg: #e2e8f0;
+  --badge-text: #334155;
+}

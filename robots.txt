@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://codeelta6ur.github.io/prompt-generator/sitemap.xml

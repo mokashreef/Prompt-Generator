@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="theme-dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Primary -->
+  <title>Prompt Generator - محرك هندسة البرومبتات الذكي</title>
+  <meta name="description" content="أداة ويب احترافية ومستقلة لتوليد Prompts عالية الجودة لنماذج الذكاء الاصطناعي بناءً على تشخيص النية وهياكل المهام المخصصة بدون أي API أو تسجيل دخول. تعمل بالكامل محلياً.">
+  <meta name="keywords" content="Prompt Generator, Prompt Engineering, هندسة الأوامر, برومبت, ذكاء اصطناعي, Midjourney prompts, ChatGPT prompts, Claude prompts, Code Elta6ur">
+  <meta name="author" content="Mohammad Abu Khashreef (Code Elta6ur)">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mokashreef.github.io/prompt-generator/">
+  <meta property="og:title" content="Prompt Generator - محرك هندسة البرومبتات الذكي">
+  <meta property="og:description" content="أنشئ برومبت مخصص واحترافي خلال ثوانٍ بدون قوالب مكررة أو وسيط API. تعمل محلياً 100% مع تشخيص فوري للنية ومقياس للجودة.">
+  <meta property="og:image" content="./assets/icons/icon-512.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Prompt Generator - Intent-Driven AI Prompts">
+  <meta name="twitter:description" content="100% client-side prompt engineering engine with dynamic task profiles, quality scoring, and zero external APIs.">
+  <meta name="twitter:image" content="./assets/icons/icon-512.png">
+
+  <!-- PWA & Mobile Web App -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="./css/themes.css">
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#" class="brand-wrapper" aria-label="Prompt Generator Home">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="4 17 10 11 4 5"></polyline>
+            <line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title" data-i18n="appTitle">Prompt Generator</span>
+          <span class="brand-badge" data-i18n="brandBy">محمد أبو خشريف • كود التطور</span>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <!-- Quick Nav Triggers -->
+        <button id="nav-examples-btn" class="btn-header" type="button" data-i18n-title="navExamples">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 2 4 4-12 12H6v-4L18 2Z"/><path d="m14 6 4 4"/></svg>
+          <span data-i18n="navExamples">أمثلة سريعة</span>
+        </button>
+
+        <button id="nav-history-btn" class="btn-header" type="button" data-i18n-title="navHistory">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span data-i18n="navHistory">السجل</span>
+          <span id="nav-history-badge" class="header-badge">0</span>
+        </button>
+
+        <button id="nav-favorites-btn" class="btn-header" type="button" data-i18n-title="navFavorites">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span data-i18n="navFavorites">المفضلة</span>
+          <span id="nav-favorites-badge" class="header-badge">0</span>
+        </button>
+
+        <!-- Chrome Extension Modal Trigger -->
+        <button id="nav-extension-btn" class="btn-header" type="button" title="Chrome Extension" data-i18n-title="navExtension">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
+          <span data-i18n="navExtension">إضافة Chrome</span>
+        </button>
+
+        <!-- Language Switcher -->
+        <button id="btn-lang-toggle" class="btn-header" type="button" title="Switch Language">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span>English</span>
+        </button>
+
+        <!-- Dark / Light Theme Toggle -->
+        <button id="btn-theme-toggle" class="btn-header" type="button" title="Toggle Theme">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-badge-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span data-i18n="heroBadge">محلي 100% • بدون API • يعمل بدون إنترنت • خصوصية تامة</span>
+      </div>
+      <h1 class="hero-title" data-i18n="heroTitle">أنشئ برومبت احترافي خلال ثوانٍ</h1>
+      <p class="hero-description" data-i18n="heroDesc">
+        أداة سريعة ومستقلة تحول فكرتك البسيطة إلى برومبت دقيق وموجه هندسياً بناءً على نوع المهمة والنية الحقيقية وراء طلبك. لا تعتمد على قالب مكرر، ولا تستخدم أي API خارجي، وبياناتك تبقى في متصفحك.
+      </p>
+
+      <div class="features-banner">
+        <div class="feature-item">
+          <span class="feature-dot"></span>
+          <span data-i18n="featureNoApi">بدون أي AI API</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-dot"></span>
+          <span data-i18n="featurePrivate">خصوصية محلية 100%</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-dot"></span>
+          <span data-i18n="featureInstant">توليد فوري مباشر</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-dot"></span>
+          <span data-i18n="featureOffline">يعمل دون إنترنت</span>
+        </div>
+      </div>
+
+      <!-- Direct Extension Download Callout in Hero -->
+      <div class="hero-extension-callout">
+        <div class="hero-ext-info">
+          <span class="hero-ext-tag" data-i18n="heroExtTag">جديد: إضافة Chrome للمتصفح</span>
+          <p class="hero-ext-desc" data-i18n="heroExtDesc">حسّن وأعد صياغة أي برومبت مباشرة داخل ChatGPT وClaude وGemini بنقرة زر بدون مغادرة الصفحة.</p>
+        </div>
+        <div class="hero-ext-actions">
+          <a href="./prompt-generator-extension.zip" download="prompt-generator-extension.zip" class="btn btn-primary btn-hero-download" id="hero-btn-download-zip">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span data-i18n="btnDownloadExtZip">تحميل الإضافة (ZIP)</span>
+          </a>
+          <button type="button" class="btn btn-secondary btn-hero-guide" id="hero-btn-ext-guide">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span data-i18n="btnExtGuide">طريقة التثبيت</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 Task Profiles Selection Section -->
+  <section class="selector-controls">
+    <div class="container">
+      <div class="controls-row">
+        <div>
+          <h2 style="font-size: 1.125rem; font-weight: 700;" data-i18n="profilesHeading">نوع المهمة (Task Profile)</h2>
+          <p style="font-size: 0.8125rem; color: var(--text-muted);" data-i18n="profilesSubtitle">اختر نوع المهمة أو ابدأ بالبرومبت العام ليتكيف تلقائياً مع فكرتك:</p>
+        </div>
+
+        <!-- Search Input -->
+        <div class="search-box-wrapper">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="search-task-profiles" class="search-input" placeholder="ابحث في أنواع المهام أو اكتب فكرتك..." data-i18n-placeholder="searchPlaceholder" autocomplete="off">
+        </div>
+      </div>
+
+      <!-- 10 Core Task Profiles Grid -->
+      <div id="task-profile-grid" class="prompt-type-grid" role="region" aria-label="Task Profile Selection">
+        <!-- Rendered dynamically by JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Workbench Section: Form & Result Area -->
+  <main class="container">
+    <div class="workbench-grid">
+      
+      <!-- Left Column: Form & Configuration Panel -->
+      <section id="form-section" class="workbench-panel">
+        <div class="panel-header">
+          <div class="panel-header-info">
+            <div id="current-profile-icon" class="panel-header-icon"></div>
+            <div>
+              <h2 id="current-profile-name" class="panel-title">برومبت عام (Adaptive)</h2>
+              <p id="current-profile-desc" class="panel-subtitle">النوع الأساسي والأكثر مرونة. يفهم طبيعة المهمة ويحدد الهيكل المناسب تلقائياً.</p>
+            </div>
+          </div>
+          <div class="panel-header-actions">
+            <button id="btn-load-type-example" class="btn btn-sm btn-outline" type="button" data-i18n="btnLoadExample">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>تحميل مثال جاهز</span>
+            </button>
+            <button id="btn-clear-form" class="btn btn-sm btn-secondary" type="button" data-i18n="btnClear">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>
+              <span>مسح الحقول</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Intent & Style Configuration Bar -->
+        <div class="config-group-box">
+          <div class="config-row">
+            
+            <!-- Intent Selector & Auto-Detection Status -->
+            <div class="config-select-grid">
+              <div class="config-item">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <label for="select-task-intent" class="config-label" data-i18n="intentSelectorLabel">النية الأساسية (Intent):</label>
+                  <span id="detected-intent-badge" class="badge-intent" title="Intent auto-detected from your input">إنشاء وبناء</span>
+                </div>
+                <div class="select-wrapper">
+                  <select id="select-task-intent" class="form-control form-select">
+                    <!-- Populated dynamically from INTENTS -->
+                  </select>
+                </div>
+              </div>
+
+              <!-- Output Language -->
+              <div class="config-item">
+                <label for="select-target-lang" class="config-label" data-i18n="targetLangLabel">لغة إخراج البرومبت:</label>
+                <div class="select-wrapper">
+                  <select id="select-target-lang" class="form-control form-select">
+                    <option value="auto" data-i18n="langAuto">نفس لغة الإدخال (تلقائي)</option>
+                    <option value="en" data-i18n="langEn">الإنجليزية (موصى بها لأغلب النماذج)</option>
+                    <option value="ar" data-i18n="langAr">العربية الفصحى</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prompt Style (Segmented Radio) -->
+            <div class="config-item">
+              <span class="config-label" data-i18n="promptStyleLabel">نمط البرومبت (Prompt Style):</span>
+              <div class="segmented-control" role="radiogroup">
+                <div class="segmented-option">
+                  <input type="radio" id="style-simple" name="prompt-style" value="simple">
+                  <label for="style-simple" class="segmented-label" data-i18n="styleSimple">بسيط ومباشر</label>
+                </div>
+                <div class="segmented-option">
+                  <input type="radio" id="style-pro" name="prompt-style" value="professional" checked>
+                  <label for="style-pro" class="segmented-label" data-i18n="stylePro">احترافي ومنظم</label>
+                </div>
+                <div class="segmented-option">
+                  <input type="radio" id="style-detailed" name="prompt-style" value="detailed">
+                  <label for="style-detailed" class="segmented-label" data-i18n="styleDetailed">مفصل وشامل</label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Dynamic Form Fields Container -->
+        <div id="dynamic-form-container">
+          <!-- Rendered by formRenderer.js based on taskProfile schema -->
+        </div>
+
+        <!-- Real-Time Quality Score Card -->
+        <div id="quality-score-card" class="quality-card">
+          <div class="quality-header-row">
+            <span class="quality-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <span data-i18n="qualityHeading">مقياس جودة البرومبت</span>
+              <span id="quality-rating-label" style="font-weight: 500; font-size: 0.75rem; color: var(--text-muted); margin-inline-start: 0.5rem;"></span>
+            </span>
+            <span id="quality-score-num" class="quality-score-badge">0%</span>
+          </div>
+
+          <div class="quality-progress-track">
+            <div id="quality-progress-bar" class="quality-progress-fill"></div>
+          </div>
+
+          <div id="quality-checklist" class="quality-checklist">
+            <!-- Checklist items rendered dynamically -->
+          </div>
+
+          <div id="quality-suggestions-box" class="quality-suggestions-box" style="display: none;">
+            <div class="quality-suggestions-title" data-i18n="suggestionsHeading">خطوات مقترحة لرفع جودة البرومبت:</div>
+            <ul id="quality-suggestions-list" class="quality-suggestions-list"></ul>
+          </div>
+        </div>
+
+        <!-- Form Actions Bar -->
+        <div class="form-actions-bar">
+          <button id="btn-generate-prompt" class="btn-primary-generate" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span data-i18n="btnGenerate">إنشاء البرومبت</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Right Column: Result / Generated Prompt Output Section -->
+      <section id="output-section" class="workbench-panel output-card">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="outputHeading">البرومبت الناتج</h2>
+          <div class="panel-header-actions">
+            <button id="btn-clear-output" class="btn btn-sm btn-secondary" type="button" data-i18n="btnClearOutput">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              <span>مسح</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty Placeholder State -->
+        <div id="output-empty-state" class="output-empty">
+          <svg class="output-empty-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+            <polyline points="9 8 15 12 9 16"/>
+          </svg>
+          <p class="output-empty-text" data-i18n="outputEmptyState">
+            اكتب ما تريد تحقيقه واضغط على «إنشاء البرومبت» لتوليد أمر احترافي ومخصص هنا.
+          </p>
+        </div>
+
+        <!-- Generated Output Container -->
+        <div id="output-wrapper" class="output-wrapper">
+          <!-- Meta Bar (Stats) -->
+          <div class="output-meta-bar">
+            <div id="output-stats" class="output-stats-list">
+              <span class="stat-item"><strong id="stat-words">0</strong> <span data-i18n="statsWords">كلمة</span></span>
+              <span class="stat-item"><strong id="stat-chars">0</strong> <span data-i18n="statsChars">حرف</span></span>
+              <span class="stat-item"><strong id="stat-tokens">0</strong> <span data-i18n="statsTokens">tokens</span></span>
+            </div>
+          </div>
+
+          <!-- Code / Text Pre Box -->
+          <div class="output-box-container">
+            <pre id="output-display" class="output-pre"></pre>
+            <textarea id="output-editor" class="output-editor-textarea" spellcheck="false"></textarea>
+          </div>
+
+          <!-- Output Actions Toolbar -->
+          <div class="output-toolbar">
+            <div class="toolbar-group">
+              <button id="btn-copy-output" class="btn btn-copy-main" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                <span data-i18n="btnCopy">نسخ البرومبت</span>
+              </button>
+              <button id="btn-edit-output" class="btn btn-secondary" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <span data-i18n="btnEdit">تعديل</span>
+              </button>
+              <button id="btn-favorite-output" class="btn btn-secondary" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span data-i18n="btnFavorite">مفضلة</span>
+              </button>
+            </div>
+
+            <div class="toolbar-group">
+              <button id="btn-regenerate-output" class="btn btn-outline" type="button" data-i18n-title="btnRegenerate">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                <span data-i18n="btnRegenerate">إعادة إنشاء</span>
+              </button>
+              <button id="btn-download-txt" class="btn btn-outline" type="button" title="Download .txt">
+                .txt
+              </button>
+              <button id="btn-download-md" class="btn btn-outline" type="button" title="Download .md">
+                .md
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Privacy & Local Processing Assurance Banner -->
+    <div class="privacy-banner-card">
+      <div class="privacy-banner-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="privacy-banner-content">
+        <h4 data-i18n="privacyTitle">خصوصية تامة 100% وأمان محلي</h4>
+        <p data-i18n="privacyNotice">
+          يتم إنشاء البرومبتات محليًا داخل متصفحك، ولا يتم إرسال بياناتك إلى أي خدمة ذكاء اصطناعي خارجية.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modals & Drawers Container -->
+  <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+    
+    <!-- History Modal -->
+    <div id="history-modal" class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <h3 class="modal-title" data-i18n="historyTitle">سجل البرومبتات المولّدة محلياً</h3>
+          <span id="history-count-badge" class="header-badge">0</span>
+        </div>
+        <button class="btn-close-modal" type="button" aria-label="Close Modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="history-modal-body" class="modal-body"></div>
+      <div class="modal-footer">
+        <button id="btn-clear-history-all" class="btn btn-sm btn-danger" type="button" data-i18n="btnClearHistory">
+          مسح السجل بالكامل
+        </button>
+        <button class="btn btn-sm btn-secondary btn-close-modal" type="button" data-i18n="closeModal">
+          إغلاق
+        </button>
+      </div>
+    </div>
+
+    <!-- Favorites Modal -->
+    <div id="favorites-modal" class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <h3 class="modal-title" data-i18n="favoritesTitle">البرومبتات المفضلة</h3>
+          <span id="favorites-count-badge" class="header-badge">0</span>
+        </div>
+        <button class="btn-close-modal" type="button" aria-label="Close Modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="favorites-modal-body" class="modal-body"></div>
+      <div class="modal-footer">
+        <div></div>
+        <button class="btn btn-sm btn-secondary btn-close-modal" type="button" data-i18n="closeModal">
+          إغلاق
+        </button>
+      </div>
+    </div>
+
+    <!-- Presets / Examples Modal -->
+    <div id="examples-modal" class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 2 4 4-12 12H6v-4L18 2Z"/><path d="m14 6 4 4"/></svg>
+          <h3 class="modal-title" data-i18n="examplesTitle">نماذج وأمثلة عملية جاهزة</h3>
+        </div>
+        <button class="btn-close-modal" type="button" aria-label="Close Modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="examples-modal-body" class="modal-body"></div>
+      <div class="modal-footer">
+        <div></div>
+        <button class="btn btn-sm btn-secondary btn-close-modal" type="button" data-i18n="closeModal">
+          إغلاق
+        </button>
+      </div>
+    <!-- Chrome Extension Modal -->
+    <div id="extension-modal" class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
+          <h3 class="modal-title" data-i18n="extModalTitle">إضافة Chrome لـ Prompt Generator</h3>
+        </div>
+        <button class="btn-close-modal" type="button" aria-label="Close Modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="extension-modal-body" class="modal-body" style="padding: 1.25rem;">
+        <p style="margin-bottom: 1rem; color: var(--text-secondary); line-height: 1.6;" data-i18n="extModalDesc">
+          حسّن وأعد صياغة أي برومبت مباشرة في أي صفحة (ChatGPT, Claude, Gemini, وغيرها) بدون فتح الموقع وبدون أي API خارجي.
+        </p>
+        
+        <!-- Direct Extension Download Box -->
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(16, 185, 129, 0.08)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 200px;">
+            <strong style="color: var(--text-primary); font-size: 0.95rem; display: block;" data-i18n="extDownloadHeading">حزمة الإضافة الجاهزة للمتصفح (ZIP)</strong>
+            <span style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="extDownloadSub">تتضمن كافة الملفات والمحرك المحلي والأيقونات جاهزة للتحميل الفوري (~57 KB)</span>
+          </div>
+          <a href="./prompt-generator-extension.zip" download="prompt-generator-extension.zip" class="btn btn-primary" id="modal-btn-download-zip" style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.55rem 1.15rem; font-weight: 600;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span data-i18n="btnDownloadExtZip">تحميل الإضافة (ZIP)</span>
+          </a>
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+          <h4 style="margin-bottom: 0.5rem; font-size: 0.95rem; color: var(--text-primary);">طريقة تثبيت الإضافة في Chrome خلال ثوانٍ:</h4>
+          <ol style="margin-right: 1.25rem; margin-left: 1.25rem; line-height: 1.8; color: var(--text-secondary); font-size: 0.85rem;">
+            <li>اضغط زر <strong>«تحميل الإضافة (ZIP)»</strong> أعلاه، ثم فك الضغط عن الملف في أي مجلد على جهازك.</li>
+            <li>افتح متصفح Chrome وتوجه إلى: <code style="background: var(--bg-input); padding: 2px 6px; border-radius: 4px;">chrome://extensions</code></li>
+            <li>فعّل خيار <strong>«وضع مطوّر البرامج» (Developer mode)</strong> في أعلى الزاوية اليمنى.</li>
+            <li>اضغط على زر <strong>«تحميل حزمة غير مضغوطة» (Load unpacked)</strong>.</li>
+            <li>اختر المجلد المفكوك (أو مجلد <code style="background: var(--bg-input); padding: 2px 6px; border-radius: 4px;">extension</code> من المشروع).</li>
+            <li>مبروك! أصبحت الإضافة جاهزة في متصفحك عبر القائمة اليمنى واختصار <kbd>Ctrl+Shift+P</kbd>.</li>
+          </ol>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 140px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 6px; padding: 0.75rem; text-align: center;">
+            <strong style="color: var(--accent-primary); display: block; font-size: 0.85rem;">100% بدون AI API</strong>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">معالجة محلية بالكامل</span>
+          </div>
+          <div style="flex: 1; min-width: 140px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 6px; padding: 0.75rem; text-align: center;">
+            <strong style="color: var(--color-success); display: block; font-size: 0.85rem;">Chrome Side Panel</strong>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">تحرير متقدم واستبدال آمن</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div></div>
+        <button class="btn btn-sm btn-secondary btn-close-modal" type="button" data-i18n="closeModal">
+          إغلاق
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <strong>Prompt Generator</strong>
+        <span>•</span>
+        <span class="footer-credit" data-i18n="footerCredit">برمجة وتصميم <a href="https://github.com/mokashreef" target="_blank" rel="noopener noreferrer">محمد أبو خشريف</a> • جزء من منظومة كود التطور</span>
+      </div>
+      <div class="footer-links">
+        <span data-i18n="offlineReadyNotice">يعمل بالكامل دون إنترنت</span>
+        <span>•</span>
+        <a href="#top" data-i18n="backToTop">للأعلى ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "name": "prompt-generator",
+  "version": "1.0.0",
+  "description": "A lightweight, privacy-first local prompt generator and enhancer with a local Prompt Engine and Chrome Extension.",
+  "author": "Mohammad Abu Khashreef (https://github.com/mokashreef)",
+  "homepage": "https://github.com/mokashreef/prompt-generator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mokashreef/prompt-generator.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/engine.test.js",
+    "dev": "npx serve -l 8080 .",
+    "start": "npx serve -l 8080 ."
+  },
+  "keywords": [
+    "prompt-generator",
+    "prompt-engineering",
+    "prompt-builder",
+    "chrome-extension",
+    "browser-extension",
+    "productivity",
+    "developer-tools",
+    "javascript",
+    "privacy",
+    "offline",
+    "github-pages"
+  ]
+}
