@@ -53,6 +53,9 @@ self.addEventListener("fetch", (event) => {
   // Only handle GET requests
   if (event.request.method !== "GET") return;
 
+  // Bypass service worker for zip downloads to guarantee native browser download behavior
+  if (event.request.url.endsWith(".zip") || event.request.url.includes(".zip")) return;
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {

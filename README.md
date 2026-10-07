@@ -18,6 +18,12 @@
 
 [🌐 Live Demo](https://mokashreef.github.io/Prompt-Generator/) • [🧩 Chrome Extension](#chrome-extension) • [📖 العربية](#نظرة-عامة-باللغة-العربية) • [💻 Local Setup](#installation--local-development)
 
+<p align="center" style="margin-top: 1rem;">
+  <a href="https://raw.githubusercontent.com/mokashreef/Prompt-Generator/main/prompt-generator-extension.zip" download="prompt-generator-extension.zip">
+    <img src="https://img.shields.io/badge/⬇%EF%B8%8F%20Download%20Chrome%20Extension-ZIP%20Package%20(~57%20KB)-2563eb?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Download Chrome Extension (ZIP)" height="42">
+  </a>
+</p>
+
 </div>
 
 ---
@@ -153,6 +159,17 @@ The engine is located in [`js/engine/`](file:///d:/my%20projects/Prompt%20Genera
 The Chrome Extension allows prompt engineering without leaving your active tab.
 
 ![Chrome Extension Modal](./docs/images/extension-modal.png)
+
+### ⬇️ Direct Download / تنزيل الإضافة مباشرة
+
+<p align="center">
+  <a href="https://raw.githubusercontent.com/mokashreef/Prompt-Generator/main/prompt-generator-extension.zip" download="prompt-generator-extension.zip">
+    <img src="https://img.shields.io/badge/⬇%EF%B8%8F%20تحميل%20الإضافة%20مباشرة%20(ZIP)-Download%20Extension%20(~57%20KB)-10b981?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Download Chrome Extension (ZIP)" height="40">
+  </a>
+</p>
+
+* **رابط التنزيل المباشر (Direct Download):** [prompt-generator-extension.zip](https://raw.githubusercontent.com/mokashreef/Prompt-Generator/main/prompt-generator-extension.zip)
+* **رابط بديل عبر موقع المشروع:** [mokashreef.github.io/Prompt-Generator/prompt-generator-extension.zip](https://mokashreef.github.io/Prompt-Generator/prompt-generator-extension.zip)
 
 ### Capabilities:
 - **Context Menu:** Highlight text on ChatGPT, Claude, or any website, right-click, and select **"Improve Prompt / تحسين البرومبت"**.

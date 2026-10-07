@@ -210,9 +210,43 @@ class App {
 
     const downloadZipButtons = document.querySelectorAll("#hero-btn-download-zip, #modal-btn-download-zip");
     downloadZipButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
         const t = translations[this.currentLang];
         toast.show(t.downloadStartedToast, "success");
+
+        const targetFilename = "prompt-generator-extension.zip";
+        const localZipPath = "./prompt-generator-extension.zip";
+        const fallbackGitHubUrl = "https://raw.githubusercontent.com/mokashreef/Prompt-Generator/main/prompt-generator-extension.zip";
+
+        fetch(localZipPath)
+          .then((res) => {
+            if (!res.ok) throw new Error("Local zip fetch failed: " + res.status);
+            return res.blob();
+          })
+          .then((blob) => {
+            const blobUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.style.display = "none";
+            a.href = blobUrl;
+            a.download = targetFilename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              window.URL.revokeObjectURL(blobUrl);
+              a.remove();
+            }, 1000);
+          })
+          .catch((err) => {
+            console.warn("Blob download fallback to GitHub raw link:", err);
+            const a = document.createElement("a");
+            a.style.display = "none";
+            a.href = fallbackGitHubUrl;
+            a.download = targetFilename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => a.remove(), 1000);
+          });
       });
     });
 
