@@ -1,14 +1,25 @@
 /**
  * Prompt Generator - Main Application Controller
- * Rebuilt from scratch with intent-driven modular prompt architecture.
- * 100% Client-Side, Zero AI API, Zero Backend.
+ * Rebuilt from the ground up as a professional AI Prompt Engineering Workspace.
+ * 
+ * Core Architectural Responsibilities:
+ * 1. AI Inference Orchestration: Manages live provider connectivity, dynamic model discovery,
+ *    and transparent failover to the deterministic engine when offline.
+ * 2. Progressive Disclosure UX: Exposes essential inputs first (objective, domain profile, mode),
+ *    while offering an advanced collapsible drawer for operational guardrails.
+ * 3. Provenance & Transparency: Distinctly labels Real AI generated artifacts from
+ *    Deterministic Fallback artifacts with live provider metadata and model IDs.
+ * 4. Superpower Actions: Instant 3-alternative generation, deep structural evaluations,
+ *    and iterative prompt improvement loops.
+ * 5. Full Bilingual Support: Pixel-perfect Arabic (RTL) & English (LTR) layouts with protected
+ *    code identifiers and syntax blocks.
  */
 
 import { translations } from "./data/translations.js";
 import { taskProfiles } from "./data/taskProfiles.js";
 import { promptExamples } from "./data/examples.js";
-import { intentDetector, INTENTS } from "./engine/intentDetector.js";
-import { promptEngine } from "./engine/promptEngine.js";
+import { providerManager } from "./ai/ProviderManager.js";
+import { aiPromptPipeline, GENERATION_MODES } from "./engine/aiPromptPipeline.js";
 import { qualityEvaluator } from "./engine/qualityEvaluator.js";
 import { storage } from "./engine/storage.js";
 import { formRenderer } from "./ui/formRenderer.js";
@@ -22,12 +33,13 @@ class App {
     this.selectedProfileId = "general";
     this.searchQuery = "";
 
-    // Generation parameters
-    this.currentStyle = "professional";
-    this.selectedIntentId = "create";
+    // Generation Parameters
+    this.currentMode = "professional";
+    this.targetPlatform = "general";
     this.currentTargetLang = "auto";
+    this.isGenerating = false;
 
-    // Current output state
+    // Output State
     this.currentGeneratedItem = null;
     this.isEditingOutput = false;
 
@@ -37,7 +49,7 @@ class App {
   init() {
     this._cacheDom();
 
-    // Modals
+    // Initialize Dialogs & Drawers
     modals.init({
       onLoadItem: (item) => this.loadFromHistoryOrFavorite(item),
       onUseExample: (example) => this.loadFromExample(example),
@@ -49,23 +61,26 @@ class App {
     this.applyTheme(this.currentTheme);
     this.applyLanguage(this.currentLang);
 
-    // Initialize Form Renderer with live change listener
+    // Initialize Dynamic Form Renderer with live change listener
     const formContainer = document.getElementById("dynamic-form-container");
     formRenderer.init(formContainer, (values) => this.handleLiveFormChange(values));
 
-    // Render 10 Task Profile cards
+    // Render 14 Task Profile Cards
     this.renderProfileSelector();
 
-    // Populate Intent dropdown
-    this.populateIntentSelector();
+    // Render Generation Mode Pills
+    this.renderModePills();
 
-    // Select default Profile (General)
+    // Select Default Profile (General)
     this.selectTaskProfile(this.selectedProfileId);
 
-    // Bind global events
+    // Bind Event Listeners
     this._bindEvents();
 
-    // Register Service Worker
+    // Subscribe to AI Provider Status Changes
+    this._subscribeToProvider();
+
+    // Register Service Worker for Offline Fallback Cache
     this._registerServiceWorker();
 
     this.updateBadges();
@@ -78,20 +93,34 @@ class App {
       themeBtn: document.getElementById("btn-theme-toggle"),
       profileSelectorContainer: document.getElementById("task-profile-grid"),
       searchInput: document.getElementById("search-task-profiles"),
-      
+
+      // Header AI Status
+      btnAiStatusToggle: document.getElementById("btn-ai-status-toggle"),
+      headerStatusDot: document.getElementById("header-status-dot"),
+      headerAiLabel: document.getElementById("header-ai-label"),
+      navAiSettingsBtn: document.getElementById("nav-ai-settings-btn"),
+
       // Selected Profile Header
       currentProfileName: document.getElementById("current-profile-name"),
       currentProfileDesc: document.getElementById("current-profile-desc"),
       currentProfileIcon: document.getElementById("current-profile-icon"),
       btnGenerate: document.getElementById("btn-generate-prompt"),
+      btnGenerateText: document.getElementById("btn-generate-text"),
       btnClearForm: document.getElementById("btn-clear-form"),
       btnLoadExample: document.getElementById("btn-load-type-example"),
 
-      // Controls
-      detectedIntentBadge: document.getElementById("detected-intent-badge"),
-      intentSelect: document.getElementById("select-task-intent"),
-      styleRadios: document.querySelectorAll("input[name='prompt-style']"),
+      // Mode & Controls
+      modePillsContainer: document.getElementById("mode-pills-container"),
+      targetPlatformSelect: document.getElementById("select-target-platform"),
       targetLangSelect: document.getElementById("select-target-lang"),
+
+      // Advanced Parameters Drawer
+      btnToggleAdvancedDrawer: document.getElementById("btn-toggle-advanced-drawer"),
+      advancedDrawerContent: document.getElementById("advanced-drawer-content"),
+      advAudience: document.getElementById("adv-audience"),
+      advConstraints: document.getElementById("adv-constraints"),
+      advDeliverable: document.getElementById("adv-deliverable"),
+      advTechEnv: document.getElementById("adv-tech-env"),
 
       // Quality Score Box
       qualityCard: document.getElementById("quality-score-card"),
@@ -100,6 +129,12 @@ class App {
       qualityRatingLabel: document.getElementById("quality-rating-label"),
       qualityChecklist: document.getElementById("quality-checklist"),
       qualitySuggestions: document.getElementById("quality-suggestions-list"),
+
+      // Provenance Banner
+      provenanceBanner: document.getElementById("provenance-banner"),
+      provenanceIcon: document.getElementById("provenance-icon"),
+      provenanceText: document.getElementById("provenance-text"),
+      provenanceMeta: document.getElementById("provenance-meta"),
 
       // Output Elements
       outputSection: document.getElementById("output-section"),
@@ -115,12 +150,16 @@ class App {
       btnCopy: document.getElementById("btn-copy-output"),
       btnEdit: document.getElementById("btn-edit-output"),
       btnRegenerate: document.getElementById("btn-regenerate-output"),
+      btnAlternatives: document.getElementById("btn-alternatives-output"),
+      btnEvaluate: document.getElementById("btn-evaluate-output"),
+      btnImprove: document.getElementById("btn-improve-output"),
       btnFav: document.getElementById("btn-favorite-output"),
       btnDownloadTxt: document.getElementById("btn-download-txt"),
       btnDownloadMd: document.getElementById("btn-download-md"),
+      btnDownloadJson: document.getElementById("btn-download-json"),
       btnClearOutput: document.getElementById("btn-clear-output"),
 
-      // Nav triggers
+      // Nav Triggers
       btnOpenHistory: document.getElementById("nav-history-btn"),
       btnOpenFavorites: document.getElementById("nav-favorites-btn"),
       btnOpenExamples: document.getElementById("nav-examples-btn"),
@@ -145,37 +184,60 @@ class App {
       this.applyTheme(newTheme);
     });
 
+    // AI Settings Modal Triggers
+    if (this.dom.btnAiStatusToggle) {
+      this.dom.btnAiStatusToggle.addEventListener("click", () => {
+        modals.openAiSettings(providerManager, () => this.updateProviderStatus());
+      });
+    }
+
+    if (this.dom.navAiSettingsBtn) {
+      this.dom.navAiSettingsBtn.addEventListener("click", () => {
+        modals.openAiSettings(providerManager, () => this.updateProviderStatus());
+      });
+    }
+
+    // Task Search Filter
     this.dom.searchInput.addEventListener("input", (e) => {
       this.searchQuery = e.target.value.trim().toLowerCase();
       this.renderProfileSelector();
     });
 
-    this.dom.styleRadios.forEach((radio) => {
-      radio.addEventListener("change", (e) => {
-        if (e.target.checked) {
-          this.currentStyle = e.target.value;
-          this.handleLiveFormChange(formRenderer.getValues());
-        }
+    // Target Platform
+    if (this.dom.targetPlatformSelect) {
+      this.dom.targetPlatformSelect.addEventListener("change", (e) => {
+        this.targetPlatform = e.target.value;
       });
-    });
+    }
 
-    this.dom.intentSelect.addEventListener("change", (e) => {
-      this.selectedIntentId = e.target.value;
-      this.handleLiveFormChange(formRenderer.getValues());
-    });
+    // Output Language
+    if (this.dom.targetLangSelect) {
+      this.dom.targetLangSelect.addEventListener("change", (e) => {
+        this.currentTargetLang = e.target.value;
+      });
+    }
 
-    this.dom.targetLangSelect.addEventListener("change", (e) => {
-      this.currentTargetLang = e.target.value;
-      this.handleLiveFormChange(formRenderer.getValues());
-    });
+    // Advanced Drawer Toggle
+    if (this.dom.btnToggleAdvancedDrawer) {
+      this.dom.btnToggleAdvancedDrawer.addEventListener("click", () => {
+        const drawer = this.dom.advancedDrawerContent;
+        drawer.classList.toggle("open");
+      });
+    }
 
+    // Primary AI Generate
     this.dom.btnGenerate.addEventListener("click", () => {
-      this.handleGenerate(true);
+      this.handleGenerate();
     });
 
     this.dom.btnClearForm.addEventListener("click", () => {
       formRenderer.clear();
-      this.renderQualityScore({ score: 0, rating: { ar: "ابدأ بالكتابة", en: "Start typing" }, checklist: [], suggestions: [] });
+      this.renderQualityScore({
+        score: 0,
+        rating: { ar: "ابدأ بالكتابة", en: "Start typing" },
+        checklist: [],
+        suggestions: []
+      });
       toast.show(this.currentLang === "ar" ? "تم مسح حقول النموذج" : "Fields cleared", "info");
     });
 
@@ -188,14 +250,36 @@ class App {
       }
     });
 
+    // Output Toolbar Actions
     this.dom.btnCopy.addEventListener("click", () => this.handleCopy());
-    this.dom.btnRegenerate.addEventListener("click", () => this.handleGenerate(true));
+    this.dom.btnRegenerate.addEventListener("click", () => this.handleGenerate());
     this.dom.btnEdit.addEventListener("click", () => this.toggleEditOutput());
     this.dom.btnFav.addEventListener("click", () => this.handleToggleFavorite());
-    this.dom.btnDownloadTxt.addEventListener("click", () => this.downloadOutput("txt"));
-    this.dom.btnDownloadMd.addEventListener("click", () => this.downloadOutput("md"));
     this.dom.btnClearOutput.addEventListener("click", () => this.clearOutput());
 
+    // Superpower Action: 3 Alternatives
+    if (this.dom.btnAlternatives) {
+      this.dom.btnAlternatives.addEventListener("click", () => this.handleGenerateAlternatives());
+    }
+
+    // Superpower Action: Evaluate Quality
+    if (this.dom.btnEvaluate) {
+      this.dom.btnEvaluate.addEventListener("click", () => this.handleEvaluateCurrentPrompt());
+    }
+
+    // Superpower Action: Improve Further
+    if (this.dom.btnImprove) {
+      this.dom.btnImprove.addEventListener("click", () => this.handleImproveCurrentPrompt());
+    }
+
+    // Downloads
+    this.dom.btnDownloadTxt.addEventListener("click", () => this.downloadOutput("txt"));
+    this.dom.btnDownloadMd.addEventListener("click", () => this.downloadOutput("md"));
+    if (this.dom.btnDownloadJson) {
+      this.dom.btnDownloadJson.addEventListener("click", () => this.downloadOutput("json"));
+    }
+
+    // Navigation Modals
     this.dom.btnOpenHistory.addEventListener("click", () => modals.openHistory());
     this.dom.btnOpenFavorites.addEventListener("click", () => modals.openFavorites());
     this.dom.btnOpenExamples.addEventListener("click", () => modals.openExamples(promptExamples));
@@ -208,6 +292,7 @@ class App {
       heroExtGuideBtn.addEventListener("click", () => modals.open("extension-modal"));
     }
 
+    // Chrome Extension Direct ZIP Downloads
     const downloadZipButtons = document.querySelectorAll("#hero-btn-download-zip, #modal-btn-download-zip");
     downloadZipButtons.forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -267,6 +352,27 @@ class App {
     }
   }
 
+  _subscribeToProvider() {
+    providerManager.subscribe(() => {
+      this.updateProviderStatus();
+    });
+    this.updateProviderStatus();
+  }
+
+  updateProviderStatus() {
+    const status = providerManager.getPublicStatus();
+    if (!this.dom.headerAiLabel || !this.dom.headerStatusDot) return;
+
+    if (status.isFallback) {
+      this.dom.headerStatusDot.className = "status-dot fallback-dot";
+      this.dom.headerAiLabel.textContent = this.currentLang === "ar" ? "المحرك الحتمي (Offline)" : "Deterministic Fallback";
+    } else {
+      this.dom.headerStatusDot.className = "status-dot";
+      const shortModel = (status.model || "").split("/").pop() || status.providerName;
+      this.dom.headerAiLabel.textContent = `${status.providerName}: ${shortModel}`;
+    }
+  }
+
   applyLanguage(lang) {
     this.currentLang = lang;
     storage.setLanguage(lang);
@@ -303,7 +409,8 @@ class App {
     });
 
     this.renderProfileSelector();
-    this.populateIntentSelector();
+    this.renderModePills();
+    this.updateProviderStatus();
 
     const currentValues = formRenderer.getValues();
     const currentProfile = taskProfiles.find((p) => p.id === this.selectedProfileId);
@@ -333,6 +440,34 @@ class App {
     }
   }
 
+  renderModePills() {
+    const container = this.dom.modePillsContainer;
+    if (!container) return;
+    container.innerHTML = "";
+
+    GENERATION_MODES.forEach((m) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `mode-pill-btn ${m.id === this.currentMode ? "active" : ""}`;
+      btn.innerHTML = `
+        <span class="mode-pill-header">
+          <span>${m.icon}</span>
+          <span>${m.name[this.currentLang] || m.name.en}</span>
+        </span>
+        <span class="mode-pill-desc">${m.description[this.currentLang] || m.description.en}</span>
+      `;
+
+      btn.addEventListener("click", () => {
+        this.currentMode = m.id;
+        document.querySelectorAll(".mode-pill-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        this.handleLiveFormChange(formRenderer.getValues());
+      });
+
+      container.appendChild(btn);
+    });
+  }
+
   renderProfileSelector() {
     const container = this.dom.profileSelectorContainer;
     container.innerHTML = "";
@@ -343,7 +478,12 @@ class App {
       const nameEn = p.name.en.toLowerCase();
       const descAr = p.description.ar.toLowerCase();
       const descEn = p.description.en.toLowerCase();
-      return nameAr.includes(this.searchQuery) || nameEn.includes(this.searchQuery) || descAr.includes(this.searchQuery) || descEn.includes(this.searchQuery);
+      return (
+        nameAr.includes(this.searchQuery) ||
+        nameEn.includes(this.searchQuery) ||
+        descAr.includes(this.searchQuery) ||
+        descEn.includes(this.searchQuery)
+      );
     });
 
     if (filtered.length === 0) {
@@ -358,18 +498,16 @@ class App {
     filtered.forEach((profile) => {
       const card = document.createElement("button");
       card.type = "button";
-      card.className = `type-card ${profile.id === this.selectedProfileId ? "active" : ""}`;
+      card.className = `prompt-type-card ${profile.id === this.selectedProfileId ? "active" : ""}`;
       card.setAttribute("data-profile-id", profile.id);
 
-      const name = profile.name[this.currentLang] || profile.name.en;
-      const tagline = profile.tagline[this.currentLang] || profile.tagline.en;
-
       card.innerHTML = `
-        <div class="type-card-icon">${profile.icon}</div>
-        <div class="type-card-content">
-          <h3 class="type-card-title">${name}</h3>
-          <p class="type-card-desc">${tagline}</p>
+        <div class="type-card-header">
+          <div class="type-icon">${profile.icon}</div>
+          <span class="type-name">${profile.name[this.currentLang] || profile.name.en}</span>
         </div>
+        <p class="type-desc">${profile.description[this.currentLang] || profile.description.en}</p>
+        <span class="type-tagline">${profile.tagline[this.currentLang] || profile.tagline.en}</span>
       `;
 
       card.addEventListener("click", () => {
@@ -380,48 +518,24 @@ class App {
     });
   }
 
-  populateIntentSelector() {
-    const select = this.dom.intentSelect;
-    if (!select) return;
-
-    select.innerHTML = "";
-    const allIntents = intentDetector.getAllIntents();
-
-    allIntents.forEach((intent) => {
-      const opt = document.createElement("option");
-      opt.value = intent.id;
-      opt.textContent = intent.name[this.currentLang] || intent.name.en;
-      if (intent.id === this.selectedIntentId) opt.selected = true;
-      select.appendChild(opt);
-    });
-  }
-
-  selectTaskProfile(profileId, initialValues = null) {
+  selectTaskProfile(profileId) {
     this.selectedProfileId = profileId;
+    const profile = taskProfiles.find((p) => p.id === profileId) || taskProfiles[0];
 
-    document.querySelectorAll(".type-card").forEach((card) => {
-      if (card.getAttribute("data-profile-id") === profileId) {
-        card.classList.add("active");
-      } else {
-        card.classList.remove("active");
-      }
+    document.querySelectorAll(".prompt-type-card").forEach((card) => {
+      card.classList.toggle("active", card.getAttribute("data-profile-id") === profileId);
     });
-
-    const profile = taskProfiles.find((p) => p.id === profileId);
-    if (!profile) return;
-
-    this.selectedIntentId = profile.defaultIntent || "create";
-    if (this.dom.intentSelect) this.dom.intentSelect.value = this.selectedIntentId;
 
     this._updateSelectedProfileHeader(profile);
-    formRenderer.render(profile, this.currentLang, initialValues || {});
+    const preservedValues = formRenderer.getValues();
+    formRenderer.render(profile, this.currentLang, preservedValues);
 
-    const hasExample = promptExamples.some((ex) => ex.typeId === profileId);
+    const hasExample = promptExamples.some((ex) => ex.typeId === profile.id);
     if (this.dom.btnLoadExample) {
       this.dom.btnLoadExample.style.display = hasExample ? "inline-flex" : "none";
     }
 
-    this.handleLiveFormChange(initialValues || {});
+    this.handleLiveFormChange(preservedValues);
   }
 
   _updateSelectedProfileHeader(profile) {
@@ -436,44 +550,14 @@ class App {
     }
   }
 
-  /**
-   * Real-Time Form Change Listener
-   * Detects intent, evaluates quality score, and updates live preview
-   */
   handleLiveFormChange(values) {
-    const profile = taskProfiles.find((p) => p.id === this.selectedProfileId);
-    if (!profile) return;
-
-    const primaryText = values.goal || values.task_objective || values.topic || values.concept || values.subject || values.action_character || values.product_offer || values.dataset_problem || values.topic_skill || values.venture_challenge || "";
-
-    // Auto-detect intent if user has not explicitly locked a non-default intent
-    if (primaryText.trim().length > 0) {
-      const detected = intentDetector.detect(primaryText);
-      if (detected.confidence > 50) {
-        this.selectedIntentId = detected.id;
-        if (this.dom.intentSelect) this.dom.intentSelect.value = detected.id;
-      }
-      if (this.dom.detectedIntentBadge) {
-        this.dom.detectedIntentBadge.textContent = detected.name[this.currentLang] || detected.name.en;
-      }
-    }
-
-    // Evaluate Quality Score
-    const tempResult = promptEngine.generate({
-      profile,
+    const primaryText = this._extractPrimaryText(values);
+    const quality = qualityEvaluator.evaluate({
+      typeId: this.selectedProfileId,
       fields: values,
-      intentId: this.selectedIntentId,
-      style: this.currentStyle,
-      targetLang: this.currentTargetLang,
-      uiLang: this.currentLang
+      promptText: primaryText
     });
-
-    this.renderQualityScore(tempResult.quality);
-
-    // If an output is already generated or user has typed substantive input, update live
-    if (primaryText.trim().length > 10 && this.currentGeneratedItem) {
-      this.handleGenerate(false); // background silent update
-    }
+    this.renderQualityScore(quality);
   }
 
   renderQualityScore(quality) {
@@ -483,19 +567,17 @@ class App {
     this.dom.qualityScoreNum.textContent = `${score}%`;
     this.dom.qualityProgressBar.style.width = `${score}%`;
 
-    // Color progress bar
     if (score >= 80) {
       this.dom.qualityProgressBar.style.backgroundColor = "var(--color-success)";
-    } else if (score >= 55) {
+    } else if (score >= 50) {
       this.dom.qualityProgressBar.style.backgroundColor = "var(--color-warning)";
     } else {
       this.dom.qualityProgressBar.style.backgroundColor = "var(--accent-primary)";
     }
 
-    const ratingText = quality.rating[this.currentLang] || quality.rating.en;
+    const ratingText = quality.rating ? (quality.rating[this.currentLang] || quality.rating.en) : "";
     this.dom.qualityRatingLabel.textContent = ratingText;
 
-    // Render Checklist
     if (this.dom.qualityChecklist) {
       this.dom.qualityChecklist.innerHTML = "";
       (quality.checklist || []).forEach((c) => {
@@ -509,7 +591,6 @@ class App {
       });
     }
 
-    // Render Actionable Suggestions
     if (this.dom.qualitySuggestions) {
       this.dom.qualitySuggestions.innerHTML = "";
       if (quality.suggestions && quality.suggestions.length > 0) {
@@ -526,53 +607,164 @@ class App {
     }
   }
 
-  handleGenerate(shouldScroll = true) {
-    const profile = taskProfiles.find((p) => p.id === this.selectedProfileId);
-    if (!profile) return;
+  /**
+   * Main Execution: Invokes real AI inference pipeline with full fallback safety.
+   */
+  async handleGenerate() {
+    if (this.isGenerating) return;
 
     const values = formRenderer.getValues();
-    const hasAnyInput = Object.values(values).some((v) => v && v.length > 0);
+    const primaryText = this._extractPrimaryText(values);
 
-    if (!hasAnyInput) {
-      toast.show(translations[this.currentLang].fillRequiredAlert, "error");
+    if (!primaryText.trim()) {
+      toast.show(this.currentLang === "ar" ? "يرجى كتابة متطلب أو هدف المهمة أولاً." : "Please describe your task objective.", "error");
       formRenderer.validateRequired();
       return;
     }
 
-    const result = promptEngine.generate({
-      profile,
-      fields: values,
-      intentId: this.selectedIntentId,
-      style: this.currentStyle,
-      targetLang: this.currentTargetLang,
-      uiLang: this.currentLang
-    });
-
-    const item = {
-      id: "p_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
-      typeId: profile.id,
-      prompt: result.prompt,
-      fields: values,
-      intentId: this.selectedIntentId,
-      style: this.currentStyle,
-      targetLang: this.currentTargetLang,
-      timestamp: Date.now(),
-      wordCount: result.wordCount,
-      charCount: result.charCount,
-      approxTokens: result.approxTokens,
-      isFavorite: false
+    // Merge advanced drawer fields into context
+    const extendedFields = {
+      ...values,
+      target_audience: this.dom.advAudience?.value.trim() || values.target_audience || "",
+      negative_constraints: this.dom.advConstraints?.value.trim() || values.constraints || "",
+      deliverable_format: this.dom.advDeliverable?.value.trim() || values.desired_result || "",
+      tech_environment: this.dom.advTechEnv?.value.trim() || values.tech_stack_env || ""
     };
 
-    storage.saveToHistory(item);
-    this.currentGeneratedItem = item;
+    this._setGeneratingState(true);
 
-    this.displayOutput(item);
-    this.renderQualityScore(result.quality);
-    this.updateBadges();
+    try {
+      const result = await aiPromptPipeline.execute({
+        taskGoal: primaryText,
+        mode: this.currentMode,
+        category: this.selectedProfileId,
+        targetPlatform: this.targetPlatform,
+        targetLang: this.currentTargetLang,
+        uiLang: this.currentLang,
+        fields: extendedFields
+      });
 
-    if (shouldScroll) {
+      storage.saveToHistory(result);
+      this.currentGeneratedItem = result;
+
+      this.displayOutput(result);
+      this.renderQualityScore(result.quality);
+      this.updateBadges();
+
+      if (result.warning) {
+        toast.show(result.warning, "warning");
+      } else {
+        toast.show(
+          this.currentLang === "ar"
+            ? (result.isAiGenerated ? "تم هندسة البرومبت بالذكاء الاصطناعي بنجاح!" : "تم إنشاء البرومبت عبر المحرك الحتمي.")
+            : (result.isAiGenerated ? "Engineered with live AI inference!" : "Generated via Deterministic Fallback."),
+          "success"
+        );
+      }
+
       this.dom.outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      toast.show(this.currentLang === "ar" ? "تم توليد البرومبت المخصص بنجاح!" : "Bespoke prompt generated!", "success");
+    } catch (err) {
+      console.error("AI Generation failed:", err);
+      toast.show(`${err.message}`, "error");
+    } finally {
+      this._setGeneratingState(false);
+    }
+  }
+
+  /**
+   * Superpower: Generates 3 distinctly different architectural alternatives.
+   */
+  async handleGenerateAlternatives() {
+    if (this.isGenerating) return;
+
+    const values = formRenderer.getValues();
+    const primaryText = this._extractPrimaryText(values) || this.dom.outputView.textContent;
+
+    if (!primaryText.trim()) {
+      toast.show(this.currentLang === "ar" ? "اكتب هدف المهمة أولاً لتوليد البدائل." : "Enter a task directive first.", "error");
+      return;
+    }
+
+    toast.show(this.currentLang === "ar" ? "جارٍ توليد 3 بدائل هندسية بالذكاء الاصطناعي..." : "Generating 3 distinct alternatives...", "info");
+
+    try {
+      const result = await aiPromptPipeline.execute({
+        taskGoal: primaryText,
+        mode: "alternatives",
+        category: this.selectedProfileId,
+        targetPlatform: this.targetPlatform,
+        targetLang: this.currentTargetLang,
+        uiLang: this.currentLang,
+        fields: values
+      });
+
+      modals.openAlternatives(result.prompt, (selectedText) => {
+        this.dom.outputView.textContent = selectedText;
+        this.dom.outputEditor.value = selectedText;
+        if (this.currentGeneratedItem) {
+          this.currentGeneratedItem.prompt = selectedText;
+          storage.saveToHistory(this.currentGeneratedItem);
+        }
+        toast.show(this.currentLang === "ar" ? "تم اعتماد البديل المختار في مساحة العمل" : "Selected alternative loaded into editor", "success");
+      });
+    } catch (err) {
+      toast.show(err.message, "error");
+    }
+  }
+
+  /**
+   * Superpower: Conducts deep quality evaluation and opens diagnostic modal.
+   */
+  async handleEvaluateCurrentPrompt() {
+    const promptText = (this.dom.outputView.textContent || "").trim();
+    if (!promptText) {
+      toast.show(this.currentLang === "ar" ? "لا يوجد برومبت ناتج لتقييمه بعد." : "No generated prompt to evaluate.", "error");
+      return;
+    }
+
+    toast.show(this.currentLang === "ar" ? "جارٍ الفحص والتقييم الهيكلي للبرومبت..." : "Evaluating prompt architecture...", "info");
+
+    const evaluation = qualityEvaluator.evaluate({
+      typeId: this.selectedProfileId,
+      fields: formRenderer.getValues(),
+      promptText
+    });
+
+    modals.openEvaluation(evaluation, () => {
+      this.handleImproveCurrentPrompt();
+    });
+  }
+
+  /**
+   * Superpower: Upgrades the current prompt via improvement loop.
+   */
+  async handleImproveCurrentPrompt() {
+    const promptText = (this.dom.outputView.textContent || "").trim();
+    if (!promptText) return;
+
+    this.currentMode = "improve";
+    this.renderModePills();
+
+    toast.show(this.currentLang === "ar" ? "جارٍ تطوير وتحسين البرومبت بالذكاء الاصطناعي..." : "Improving prompt with AI...", "info");
+
+    try {
+      const result = await aiPromptPipeline.execute({
+        taskGoal: promptText,
+        mode: "improve",
+        category: this.selectedProfileId,
+        targetPlatform: this.targetPlatform,
+        targetLang: this.currentTargetLang,
+        uiLang: this.currentLang,
+        fields: formRenderer.getValues()
+      });
+
+      storage.saveToHistory(result);
+      this.currentGeneratedItem = result;
+      this.displayOutput(result);
+      this.renderQualityScore(result.quality);
+      toast.show(this.currentLang === "ar" ? "تم رفع كفاءة البرومبت بنجاح!" : "Prompt upgraded successfully!", "success");
+    } catch (err) {
+      toast.show(err.message, "error");
     }
   }
 
@@ -590,6 +782,22 @@ class App {
     this.dom.statChars.textContent = item.charCount;
     this.dom.statTokens.textContent = item.approxTokens;
 
+    // Display Provenance Banner
+    if (this.dom.provenanceBanner) {
+      this.dom.provenanceBanner.style.display = "flex";
+      if (item.isAiGenerated) {
+        this.dom.provenanceBanner.className = "provenance-banner provenance-real-ai";
+        this.dom.provenanceIcon.textContent = "✓";
+        this.dom.provenanceText.textContent = translations[this.currentLang].provenanceRealAi;
+        this.dom.provenanceMeta.textContent = `${item.providerName || item.provider} • ${item.model}`;
+      } else {
+        this.dom.provenanceBanner.className = "provenance-banner provenance-fallback";
+        this.dom.provenanceIcon.textContent = "ℹ";
+        this.dom.provenanceText.textContent = translations[this.currentLang].provenanceFallback;
+        this.dom.provenanceMeta.textContent = `Deterministic Rule Engine (No AI API)`;
+      }
+    }
+
     this._updateFavButtonState(storage.isFavorite(item.id));
   }
 
@@ -597,20 +805,23 @@ class App {
     const text = this.isEditingOutput ? this.dom.outputEditor.value : this.dom.outputView.textContent;
     if (!text) return;
 
-    navigator.clipboard.writeText(text).then(() => {
-      toast.show(translations[this.currentLang].btnCopied, "success");
-      const copyBtn = this.dom.btnCopy;
-      copyBtn.classList.add("btn-copied");
-      setTimeout(() => copyBtn.classList.remove("btn-copied"), 2000);
-    }).catch(() => {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-      toast.show(translations[this.currentLang].btnCopied, "success");
-    });
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        toast.show(translations[this.currentLang].btnCopied, "success");
+        const copyBtn = this.dom.btnCopy;
+        copyBtn.classList.add("btn-copied");
+        setTimeout(() => copyBtn.classList.remove("btn-copied"), 2000);
+      })
+      .catch(() => {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        toast.show(translations[this.currentLang].btnCopied, "success");
+      });
   }
 
   toggleEditOutput() {
@@ -620,138 +831,168 @@ class App {
     if (this.isEditingOutput) {
       this.dom.outputView.style.display = "none";
       this.dom.outputEditor.style.display = "block";
+      this.dom.outputEditor.value = this.dom.outputView.textContent;
       this.dom.outputEditor.focus();
-      this.dom.btnEdit.textContent = t.btnSaveEdit;
+      this.dom.btnEdit.querySelector("span").textContent = t.btnSaveEdit;
     } else {
-      const updatedPrompt = this.dom.outputEditor.value;
-      this.dom.outputView.textContent = updatedPrompt;
+      const updatedText = this.dom.outputEditor.value;
+      this.dom.outputView.textContent = updatedText;
       this.dom.outputEditor.style.display = "none";
       this.dom.outputView.style.display = "block";
-      this.dom.btnEdit.textContent = t.btnEdit;
+      this.dom.btnEdit.querySelector("span").textContent = t.btnEdit;
 
       if (this.currentGeneratedItem) {
-        this.currentGeneratedItem.prompt = updatedPrompt;
-        this.currentGeneratedItem.wordCount = promptEngine._countWords(updatedPrompt);
-        this.currentGeneratedItem.charCount = updatedPrompt.length;
-        this.currentGeneratedItem.approxTokens = Math.round(updatedPrompt.length / 3);
+        this.currentGeneratedItem.prompt = updatedText;
+        this.currentGeneratedItem.wordCount = updatedText.split(/\s+/).filter(Boolean).length;
+        this.currentGeneratedItem.charCount = updatedText.length;
         storage.saveToHistory(this.currentGeneratedItem);
-
-        this.dom.statWords.textContent = this.currentGeneratedItem.wordCount;
-        this.dom.statChars.textContent = this.currentGeneratedItem.charCount;
-        this.dom.statTokens.textContent = this.currentGeneratedItem.approxTokens;
       }
+      toast.show(this.currentLang === "ar" ? "تم حفظ التعديلات" : "Changes saved");
     }
   }
 
   handleToggleFavorite() {
     if (!this.currentGeneratedItem) return;
-
-    const result = storage.toggleFavorite(this.currentGeneratedItem);
-    this._updateFavButtonState(result.isFavorite);
+    const isFav = storage.toggleFavorite(this.currentGeneratedItem);
+    this._updateFavButtonState(isFav);
     this.updateBadges();
 
     const t = translations[this.currentLang];
-    toast.show(result.isFavorite ? t.btnFavorited : t.itemDeleted, "success");
+    toast.show(isFav ? t.btnFavorited : t.itemDeleted, isFav ? "success" : "info");
   }
 
   _updateFavButtonState(isFav) {
+    const t = translations[this.currentLang];
+    const span = this.dom.btnFav.querySelector("span");
     if (isFav) {
-      this.dom.btnFav.classList.add("btn-active-fav");
-      this.dom.btnFav.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        <span>${translations[this.currentLang].btnFavorited}</span>
-      `;
+      this.dom.btnFav.classList.add("btn-favorited");
+      span.textContent = t.btnFavorited;
     } else {
-      this.dom.btnFav.classList.remove("btn-active-fav");
-      this.dom.btnFav.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        <span>${translations[this.currentLang].btnFavorite}</span>
-      `;
+      this.dom.btnFav.classList.remove("btn-favorited");
+      span.textContent = t.btnFavorite;
     }
   }
 
-  downloadOutput(format = "txt") {
-    const text = this.dom.outputView.textContent;
+  downloadOutput(format) {
+    const text = this.isEditingOutput ? this.dom.outputEditor.value : this.dom.outputView.textContent;
     if (!text) return;
 
-    const profileId = this.selectedProfileId || "prompt";
-    const filename = `${profileId}-prompt-${Date.now()}.${format}`;
-    const blob = new Blob([text], { type: format === "md" ? "text/markdown;charset=utf-8" : "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
+    let content = text;
+    let mimeType = "text/plain";
+    let filename = `prompt_${Date.now()}.${format}`;
 
+    if (format === "json") {
+      mimeType = "application/json";
+      content = JSON.stringify(this.currentGeneratedItem || { prompt: text }, null, 2);
+    } else if (format === "md") {
+      mimeType = "text/markdown";
+    }
+
+    const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    toast.show(this.currentLang === "ar" ? `تم تنزيل (${filename})` : `Downloaded (${filename})`, "success");
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 500);
   }
 
   clearOutput() {
     this.dom.outputWrapper.style.display = "none";
     this.dom.outputEmptyState.style.display = "flex";
+    if (this.dom.provenanceBanner) this.dom.provenanceBanner.style.display = "none";
+    this.dom.outputView.textContent = "";
+    this.dom.outputEditor.value = "";
     this.currentGeneratedItem = null;
+    this.isEditingOutput = false;
   }
 
   loadFromHistoryOrFavorite(item) {
-    this.selectTaskProfile(item.typeId, item.fields);
-
-    this.currentStyle = item.style || "professional";
-    this.dom.styleRadios.forEach((r) => {
-      r.checked = r.value === this.currentStyle;
-    });
-
-    if (item.intentId) {
-      this.selectedIntentId = item.intentId;
-      if (this.dom.intentSelect) this.dom.intentSelect.value = item.intentId;
+    if (item.typeId) {
+      this.selectTaskProfile(item.typeId);
     }
-
+    if (item.fields) {
+      formRenderer.setValues(item.fields);
+    }
+    if (item.mode) {
+      this.currentMode = item.mode;
+      this.renderModePills();
+    }
     this.currentGeneratedItem = item;
     this.displayOutput(item);
-
-    document.getElementById("form-section").scrollIntoView({ behavior: "smooth", block: "start" });
-    toast.show(this.currentLang === "ar" ? "تم استرجاع البرومبت في النموذج" : "Loaded into form", "info");
+    modals.close();
+    this.dom.outputSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   loadFromExample(example) {
-    this.selectTaskProfile(example.typeId, example.fields);
-
-    this.currentStyle = example.style || "professional";
-    this.dom.styleRadios.forEach((r) => {
-      r.checked = r.value === this.currentStyle;
-    });
-
-    if (example.targetLang) {
-      this.currentTargetLang = example.targetLang;
-      this.dom.targetLangSelect.value = example.targetLang;
+    this.selectTaskProfile(example.typeId);
+    if (example.fields) {
+      formRenderer.setValues(example.fields);
     }
-
-    this.handleGenerate(false);
-
-    document.getElementById("form-section").scrollIntoView({ behavior: "smooth", block: "start" });
-    toast.show(this.currentLang === "ar" ? "تم تحميل المثال بنجاح!" : "Example loaded!", "info");
+    this.handleLiveFormChange(example.fields);
+    modals.close();
+    toast.show(this.currentLang === "ar" ? "تم تحميل المثال بنجاح" : "Preset loaded successfully", "success");
   }
 
   updateBadges() {
-    const history = storage.getHistory();
-    const favs = storage.getFavorites();
+    const historyCount = storage.getHistory().length;
+    const favoritesCount = storage.getFavorites().length;
 
-    if (this.dom.historyBadge) this.dom.historyBadge.textContent = history.length;
-    if (this.dom.favoritesBadge) this.dom.favoritesBadge.textContent = favs.length;
+    if (this.dom.historyBadge) this.dom.historyBadge.textContent = historyCount;
+    if (this.dom.favoritesBadge) this.dom.favoritesBadge.textContent = favoritesCount;
+  }
+
+  _extractPrimaryText(values) {
+    return (
+      values.goal ||
+      values.task_objective ||
+      values.topic ||
+      values.concept ||
+      values.subject ||
+      values.action_character ||
+      values.product_offer ||
+      values.dataset_problem ||
+      values.topic_skill ||
+      values.venture_challenge ||
+      values.bug_symptom ||
+      values.system_goal ||
+      values.automation_task ||
+      values.source_text ||
+      ""
+    );
+  }
+
+  _setGeneratingState(isGenerating) {
+    this.isGenerating = isGenerating;
+    const btn = this.dom.btnGenerate;
+    const btnText = this.dom.btnGenerateText;
+
+    if (isGenerating) {
+      btn.disabled = true;
+      btn.classList.add("btn-generating");
+      btnText.textContent = translations[this.currentLang].btnGenerating;
+    } else {
+      btn.disabled = false;
+      btn.classList.remove("btn-generating");
+      btnText.textContent = translations[this.currentLang].btnGenerate;
+    }
   }
 
   _registerServiceWorker() {
-    if ("serviceWorker" in navigator && (window.location.protocol === "https:" || window.location.hostname === "localhost")) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
-      });
+    if ("serviceWorker" in navigator && window.location.protocol.startsWith("http")) {
+      navigator.serviceWorker
+        .register("./service-worker.js")
+        .then(() => console.log("Service Worker registered successfully."))
+        .catch((err) => console.warn("SW Registration skipped:", err));
     }
   }
 }
 
+// Bootstrap application on DOM ready
 document.addEventListener("DOMContentLoaded", () => {
-  window.promptGenApp = new App();
+  window.app = new App();
 });
