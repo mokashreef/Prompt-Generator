@@ -11,7 +11,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "test": "node tests/engine.test.js",
+    "test": "node tests/runner.js",
     "dev": "npx serve -l 8080 .",
     "start": "npx serve -l 8080 ."
   },
