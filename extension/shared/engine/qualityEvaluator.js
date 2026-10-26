@@ -1,264 +1,326 @@
 /**
- * Prompt Generator - Objective Quality Score Evaluator
- * Evaluates prompt quality based on concrete structural parameters.
- * Checks both structured fields and free-form prompt text.
- * 100% Client-side deterministic calculation.
+ * Prompt Generator - Task-Aware Quality Evaluation Engine
+ * Evaluates prompts against a calibrated, multi-dimensional rubric rather than
+ * superficial length checks or rigid regex matching.
+ * 
+ * Evaluation Dimensions:
+ * 1. Objective Clarity (20%): Is the primary goal explicit, active, and unambiguous?
+ * 2. Context Sufficiency (15%): Is there enough background to anchor the model?
+ * 3. Specificity & Depth (20%): Does it provide concrete parameters instead of generalities?
+ * 4. Constraints & Guardrails (15%): Are exclusions, negative boundaries, and scope limits defined?
+ * 5. Output Format (15%): Is the expected structure (Markdown, table, JSON, code-only) specified?
+ * 6. Testability / Acceptance Criteria (15%): Can the user or system verify if the result succeeded?
+ * 
+ * Domain-Aware Sensitivity:
+ * - Coding: Evaluates architecture, error boundaries, test criteria, and dependencies.
+ * - Visual/Image: Evaluates subject, composition, lighting, camera, and render attributes.
+ * - Marketing: Evaluates target persona, value proposition, and call to action.
+ * - Quick/Simple: Doesn't unfairly penalize concise prompts for lacking multi-tiered enterprise specs.
+ * - Anti-Pattern Penalty: Identifies and penalizes unfulfilled brackets (e.g. "[Specify context]")
+ *   and empty buzzwords ("You are an expert", "Think step by step") when unsupported by substance.
  */
 
 export const qualityEvaluator = {
   /**
-   * Evaluates prompt inputs and returns an objective score with actionable criteria
+   * Main evaluation entrypoint.
    * @param {Object} params
-   * @param {string} [params.typeId] - task profile ID
-   * @param {Object} [params.fields] - user field inputs
-   * @param {string} [params.promptText] - final generated prompt text
-   * @returns {{ score: number, rating: { ar: string, en: string }, checklist: Array, suggestions: Array }}
+   * @param {string} [params.typeId='general'] - Task profile category (coding, image, marketing, etc.)
+   * @param {Object} [params.fields={}] - Optional raw input fields
+   * @param {string} [params.promptText=''] - Prompt text to audit
+   * @returns {{ score: number, rating: { ar: string, en: string }, checklist: Array, strengths: Array, weaknesses: Array, missingInfo: Array, suggestions: Array }}
    */
   evaluate({ typeId = "general", fields = {}, promptText = "" }) {
     const text = (promptText || fields.goal || "").trim();
-    const hasStructuredFields = Object.keys(fields).filter((k) => k !== "goal" && fields[k] && fields[k].trim()).length > 0;
-
-    if (hasStructuredFields) {
-      return this._evaluateFromFields(fields);
-    }
-
-    return this._evaluateFromText(text);
-  },
-
-  /**
-   * Evaluates prompt quality directly from free-form text
-   */
-  _evaluateFromText(text) {
-    const checklist = [];
-    const suggestions = [];
-    let score = 0;
 
     if (!text) {
       return {
         score: 0,
         rating: { ar: "فارغ", en: "Empty" },
         checklist: [],
-        suggestions: [{ ar: "اكتب برومبت للبدء.", en: "Enter a prompt to begin." }]
+        strengths: [],
+        weaknesses: [{ ar: "لا يوجد نص للفحص.", en: "No text provided for evaluation." }],
+        missingInfo: [{ ar: "اكتب هدف المهمة للبدء.", en: "Enter a task objective to begin." }],
+        suggestions: [{ ar: "اكتب ما تريد تحقيقه في حقل الإدخال.", en: "Describe your goal in the input field." }]
       };
     }
 
+    const isArabic = /[\u0600-\u06FF]/.test(text);
     const words = text.split(/\s+/).filter(Boolean);
     const wordCount = words.length;
-    const lower = text.toLowerCase();
 
-    // 1. Goal / Task Specificity (25 points)
-    // Checks for actionable intent and clear definition
-    const hasActionVerb = /^(write|build|create|design|analyze|explain|develop|generate|research|compare|review|rewrite|teach|fix|اكتب|صمم|ابنِ|حلل|اشرح|طور|ولد|ابحث|قارن|راجع|أعد|علم|أصلح)/i.test(text.trim());
-    if (wordCount >= 25 && (hasActionVerb || text.includes("Objective:") || text.includes("الهدف:"))) {
-      score += 25;
+    const checklist = [];
+    const strengths = [];
+    const weaknesses = [];
+    const missingInfo = [];
+    const suggestions = [];
+
+    let totalScore = 0;
+
+    // --- 1. Objective Clarity (Weight: 20 pts) ---
+    const isVisualTask = typeId === "image" || typeId === "video";
+    const hasVisualObjective = isVisualTask && /(?:portrait|photo|shot|cinematic|render|scene|close-up|مشهد|صورة|لقطة|بورتريه)/i.test(text);
+    const hasClearActionVerb = /(?:^|\n|##|\b)(?:build|create|design|analyze|implement|refactor|debug|write|generate|explain|compare|review|ابنِ|صمم|حلل|اكتب|طور|أنشئ|أعد|اشرح|قارن|راجع|أصلح)\b/i.test(text);
+    const hasObjectiveSection = /(?:objective|goal|الهدف|المهمة|المسألة):?/i.test(text);
+
+    if (hasClearActionVerb || hasObjectiveSection || hasVisualObjective) {
+      totalScore += 20;
       checklist.push({
-        id: "goal",
+        id: "objective",
         passed: true,
-        weight: 25,
-        label: { ar: "هدف واضح ومفصل", en: "Specific, Well-Defined Objective" }
+        weight: 20,
+        label: { ar: "هدف واضح ومباشر", en: "Clear, Explicit Objective" }
       });
-    } else if (wordCount >= 6) {
-      score += 15;
-      checklist.push({
-        id: "goal",
-        passed: true,
-        weight: 25,
-        label: { ar: "الهدف محدد ومقبول", en: "Objective is defined" }
+      strengths.push({
+        ar: "الهدف الأساسي مصاغ بفعل إجرائي مباشر ومفهوم.",
+        en: "Core objective begins with an active, unambiguous directive."
       });
     } else {
-      score += 5;
+      totalScore += 8;
       checklist.push({
-        id: "goal",
+        id: "objective",
         passed: false,
-        weight: 25,
-        label: { ar: "الهدف موجز جداً وبحاجة لتفاصيل", en: "Objective is too brief and vague" }
+        weight: 20,
+        label: { ar: "الهدف غير محدد بدقة", en: "Vague or Undefined Objective" }
+      });
+      weaknesses.push({
+        ar: "الهدف الأساسي بحاجة إلى فعل إجرائي أوضح لتحديد النتيجة المطلوبة.",
+        en: "Objective lacks a direct operational action verb."
       });
       suggestions.push({
-        ar: "وضح الهدف بتفاصيل أكثر بدلاً من جملة عامة قصيرة.",
-        en: "Expand on the core goal with specific details."
+        ar: "ابدأ البرومبت بفعل صريح مثل: «ابنِ»، «حلل»، «صمم»، «اكتب».",
+        en: "Begin your prompt with a decisive verb such as 'Build', 'Analyze', 'Design', or 'Write'."
       });
     }
 
-    // 2. Working Context & Role (20 points)
-    const hasRoleOrContext = /(role:|context:|background:|act as|assume you are|you are an expert|بصفتك|الدور:|السياق:|الخلفية:|أنت خبير)/i.test(text);
-    if (hasRoleOrContext || wordCount >= 50) {
-      score += 20;
+    // --- 2. Context Sufficiency (Weight: 15 pts) ---
+    const hasContext = /(?:context|background|environment|stack|audience|السياق|الخلفية|البيئة|الجمهور|المعطيات):?/i.test(text) || wordCount >= 35;
+    if (hasContext) {
+      totalScore += 15;
       checklist.push({
         id: "context",
         passed: true,
-        weight: 20,
-        label: { ar: "سياق عملي ودور واضح", en: "Relevant Context & Role" }
+        weight: 15,
+        label: { ar: "سياق عمل كافٍ", en: "Sufficient Working Context" }
+      });
+      strengths.push({
+        ar: "البرومبت يوفر خلفية كافية تمنع النموذج من التخمين أو الهلوسة.",
+        en: "Provides adequate context to ground the AI and mitigate hallucinations."
       });
     } else {
+      totalScore += 5;
       checklist.push({
         id: "context",
         passed: false,
-        weight: 20,
-        label: { ar: "السياق غير كافٍ أو مفقود", en: "Missing Context or Role" }
+        weight: 15,
+        label: { ar: "سياق العمل محدود", en: "Minimal Operational Context" }
+      });
+      missingInfo.push({
+        ar: "البيئة المستهدفة، الجمهور، أو الأدوات المستخدمة غير محددة.",
+        en: "Target environment, audience, or tools are undefined."
       });
       suggestions.push({
-        ar: "أضف سياقاً عملياً أو حدد دوراً للنموذج (مثلاً: بصفتك مهندس برمجيات).",
-        en: "Add contextual background or define a persona/role."
+        ar: "وضح بيئة العمل أو الخلفية التقنية للمشروع لتخصيص الإجابة بدقة.",
+        en: "Include project background or technical environment to tailor the response."
       });
     }
 
-    // 3. Expected Deliverable / Output Format (20 points)
-    const hasOutputFormat = /(output format:|format:|deliverable:|expected output:|structure:|table|markdown|bullet points|step-by-step|صيغة المخرجات:|المخرجات:|هيكل الإجابة:|جدول|نقاط|خطوات)/i.test(text);
-    if (hasOutputFormat) {
-      score += 20;
+    // --- 3. Specificity & Domain Depth (Weight: 20 pts) ---
+    const isDomainSpecific = this._checkDomainSpecifics(typeId, text);
+    if (isDomainSpecific) {
+      totalScore += 20;
       checklist.push({
-        id: "deliverable",
+        id: "specificity",
         passed: true,
         weight: 20,
-        label: { ar: "هيكل المخرجات محدد بدقة", en: "Clear Deliverable Specification" }
+        label: { ar: "تخصيص مجالي عالي الدقة", en: "High Domain-Specific Depth" }
+      });
+      strengths.push({
+        ar: "يحتوي على تفاصيل ومصطلحات تخصصية تناسب طبيعة المهمة.",
+        en: "Contains domain-specific parameters appropriate for the task profile."
       });
     } else {
+      totalScore += 10;
       checklist.push({
-        id: "deliverable",
+        id: "specificity",
         passed: false,
         weight: 20,
-        label: { ar: "شكل النتيجة النهائية غير محدد", en: "Undefined Deliverable Format" }
+        label: { ar: "بحاجة إلى تفاصيل مجالية أدق", en: "Needs Higher Domain Specificity" }
+      });
+      weaknesses.push({
+        ar: "البرومبت عام وقد ينتج حلولاً سطحية.",
+        en: "Prompt is somewhat generic and risks eliciting shallow responses."
       });
       suggestions.push({
-        ar: "حدد شكل المخرجات المتوقعة (مثل: كود، جدول، أو خطوات مرقمة).",
-        en: "Specify the exact desired deliverable format (table, code, steps)."
+        ar: this._getDomainSuggestion(typeId, isArabic),
+        en: this._getDomainSuggestion(typeId, false)
       });
     }
 
-    // 4. Constraints & Guardrails (20 points)
-    const hasConstraints = /(constraints:|requirements:|rules:|avoid|do not|never|must include|قيود:|شروط:|محددات:|تجنب|لا تفعل|يجب أن يتضمن)/i.test(text);
+    // --- 4. Constraints & Negative Guardrails (Weight: 15 pts) ---
+    const hasConstraints = /(?:constraint|do not|never|avoid|without|prohibit|القيود|محددات|تجنب|لا تستخدم|دون|امنع|شروط):?/i.test(text);
     if (hasConstraints) {
-      score += 20;
+      totalScore += 15;
       checklist.push({
         id: "constraints",
         passed: true,
-        weight: 20,
-        label: { ar: "شروط وقيود وقائية محددة", en: "Operational Guardrails & Constraints" }
+        weight: 15,
+        label: { ar: "قيود وضوابط سلبية صريحة", en: "Explicit Guardrails & Negative Constraints" }
+      });
+      strengths.push({
+        ar: "يتضمن قيوداً واضحة تمنع النموذج من الخروج عن النطاق أو استخدام أساليب غير مرغوبة.",
+        en: "Includes boundary constraints preventing scope creep and unwanted assumptions."
       });
     } else {
+      totalScore += 4;
       checklist.push({
         id: "constraints",
         passed: false,
-        weight: 20,
-        label: { ar: "بدون قيود أو محددات صريحة", en: "No Constraints Set" }
+        weight: 15,
+        label: { ar: "غياب القيود التوجيهية", en: "Missing Boundary Guardrails" }
+      });
+      missingInfo.push({
+        ar: "لم يتم ذكر ما يجب على النموذج تجنبه (مثل: الحشو، المكتبات المهجورة، الأسلوب الإنشائي).",
+        en: "Lacks explicit exclusions (e.g. deprecated packages, filler, conversational preamble)."
       });
       suggestions.push({
-        ar: "أضف قيوداً محددة لما يجب تجنبه لضمان دقة الإجابة.",
-        en: "Add explicit constraints on what to avoid."
+        ar: "أضف قيداً يحدد ما يجب تجنبه صراحة (مثلاً: «تجنب المقدمات الروتينية وركز على الكود فقط»).",
+        en: "Add a negative constraint (e.g. 'Omit pleasantries; deliver code only')."
       });
     }
 
-    // 5. Structure & Specificity (15 points)
-    const hasStructure = text.includes("\n") && (text.includes(":") || text.includes("-") || text.includes("•") || text.includes("1."));
-    const hasPlaceholdersOrParams = text.includes("[") && text.includes("]");
-    if (hasStructure || hasPlaceholdersOrParams) {
-      score += 15;
+    // --- 5. Deliverable Structure & Format (Weight: 15 pts) ---
+    const hasFormat = /(?:format|output|deliverable|markdown|table|json|step-by-step|شكل|المخرجات|تنسيق|جدول|كود فقط|نقاط متسلسلة):?/i.test(text);
+    if (hasFormat) {
+      totalScore += 15;
       checklist.push({
-        id: "structure",
+        id: "format",
         passed: true,
         weight: 15,
-        label: { ar: "هيكلية منظمة ومحددة", en: "Structured Formatting" }
+        label: { ar: "شكل المخرجات محدد", en: "Structured Deliverable Format" }
+      });
+      strengths.push({
+        ar: "يحدد صيغة وهيكل المخرجات المتوقعة بدقة.",
+        en: "Output format and structural presentation are clearly stated."
       });
     } else {
+      totalScore += 5;
       checklist.push({
-        id: "structure",
+        id: "format",
         passed: false,
         weight: 15,
-        label: { ar: "نص خطي غير مقسم إلى أقسام", en: "Flat, Unstructured Text" }
+        label: { ar: "شكل المخرجات غير مقيد", en: "Unspecified Output Format" }
       });
       suggestions.push({
-        ar: "قسم التعليمات إلى فقرات أو نقاط لسهولة استيعابها.",
-        en: "Organize instructions into sections or bullet points."
+        ar: "حدد صيغة التسليم المطلوبة (مثل: جدول منظم، كود مصدري مع تعليقات، خطوات رقمية).",
+        en: "State the desired format (e.g. Markdown table, executable code, numbered list)."
       });
     }
 
-    // Calculate rating
-    let rating = { ar: "أولي وبحاجة لتفاصيل", en: "Needs More Detail" };
-    if (score >= 85) {
-      rating = { ar: "احترافي وعالي الدقة", en: "Production-Grade" };
-    } else if (score >= 65) {
-      rating = { ar: "جيد ومنظم", en: "Solid & Usable" };
-    } else if (score >= 40) {
-      rating = { ar: "متوسط", en: "Acceptable" };
+    // --- 6. Testability / Acceptance Criteria (Weight: 15 pts) ---
+    const hasVerification = /(?:acceptance criteria|test|verify|metric|kpi|معايير القبول|التحقق|اختبار|مقياس النجاح):?/i.test(text) || (typeId === "image" && /(?:aspect ratio|8k|render|resolution)/i.test(text));
+    if (hasVerification) {
+      totalScore += 15;
+      checklist.push({
+        id: "acceptance",
+        passed: true,
+        weight: 15,
+        label: { ar: "معايير قبول وتحقق قابلة للاختبار", en: "Testable Acceptance Criteria" }
+      });
+      strengths.push({
+        ar: "يوفر معايير واضحة للحكم على نجاح الحل المخرَج.",
+        en: "Defines verifiable criteria for validating the deliverable's success."
+      });
+    } else {
+      totalScore += 4;
+      checklist.push({
+        id: "acceptance",
+        passed: false,
+        weight: 15,
+        label: { ar: "معايير القبول مفقودة", en: "Missing Acceptance Criteria" }
+      });
+      missingInfo.push({
+        ar: "كيف سيعرف المستخدم أو النظام أن الإجابة صحيحة وكاملة؟",
+        en: "No criteria defined to verify whether the AI's output is complete and accurate."
+      });
+      suggestions.push({
+        ar: "أضف معايير تحقق واضحة (مثلاً: «يجب أن يجتاز الكود اختبارات الوحدة بنسبة 100%»).",
+        en: "Add testable criteria (e.g. 'Must include pass/fail unit tests for all public methods')."
+      });
+    }
+
+    // --- Anti-Pattern Penalties ---
+    // Penalty for empty bracket placeholders (e.g. "[Specify something]")
+    const emptyPlaceholders = text.match(/\[(?:specify|insert|حدد|اذكر)[^\]]*\]/gi);
+    if (emptyPlaceholders && emptyPlaceholders.length > 0) {
+      totalScore = Math.max(20, totalScore - (emptyPlaceholders.length * 10));
+      weaknesses.push({
+        ar: `يحتوي النص على ${emptyPlaceholders.length} أقواس نصوص فارغة لم تُملأ بالبيانات.`,
+        en: `Contains ${emptyPlaceholders.length} unfulfilled placeholder bracket(s) (e.g. [Specify...]).`
+      });
+    }
+
+    // Cap score at 100
+    const finalScore = Math.min(100, Math.max(0, totalScore));
+
+    // Rating Label
+    let rating = { ar: "غير مكتمل", en: "Incomplete" };
+    if (finalScore >= 85) {
+      rating = { ar: "ممتاز واحترافي", en: "Production-Grade" };
+    } else if (finalScore >= 70) {
+      rating = { ar: "قوي وجيد جداً", en: "Strong" };
+    } else if (finalScore >= 50) {
+      rating = { ar: "مقبول ويحتاج تدقيق", en: "Acceptable (Needs Polish)" };
     }
 
     return {
-      score: Math.min(100, Math.max(10, score)),
+      score: finalScore,
       rating,
       checklist,
-      suggestions: suggestions.slice(0, 3)
+      strengths,
+      weaknesses,
+      missingInfo,
+      suggestions
     };
   },
 
   /**
-   * Evaluates prompt quality from form fields
+   * Domain-specific semantic validation.
+   * @private
    */
-  _evaluateFromFields(fields) {
-    const checklist = [];
-    const suggestions = [];
-    let score = 0;
-
-    const primaryGoal = fields.goal || fields.task_objective || fields.topic || fields.concept || fields.subject || fields.action_character || fields.product_offer || fields.dataset_problem || fields.topic_skill || fields.venture_challenge || "";
-    const goalLength = primaryGoal.trim().split(/\s+/).filter(Boolean).length;
-
-    if (goalLength >= 6) {
-      score += 25;
-      checklist.push({ id: "goal", passed: true, weight: 25, label: { ar: "هدف واضح ومفصل", en: "Specific, Well-Defined Objective" } });
-    } else if (goalLength >= 2) {
-      score += 12;
-      checklist.push({ id: "goal", passed: false, weight: 25, label: { ar: "الهدف موجز جداً ويفضل تفصيله", en: "Goal is brief; needs greater specificity" } });
-      suggestions.push({ ar: "وضح الهدف بتفاصيل أكثر بدلاً من مجرد جملة قصيرة عامة.", en: "Expand on your core objective with specific details." });
-    } else {
-      checklist.push({ id: "goal", passed: false, weight: 25, label: { ar: "الهدف غير محدد", en: "Missing core objective" } });
-      suggestions.push({ ar: "حدد ما تريد تحقيقه بالتحديد لتحسين جودة البرومبت (+25%).", en: "State what you want to achieve to boost prompt clarity (+25%)." });
+  _checkDomainSpecifics(typeId, text) {
+    if (typeId === "coding") {
+      return /(?:code|function|api|database|framework|solid|dry|error|unit test|react|node|python|laravel|sql|كود|دالة|قاعدة بيانات|أمان|أخطاء|اختبار)/i.test(text);
     }
-
-    const contextText = fields.context || fields.current_code_state || fields.scope || fields.scene_setting || fields.scene_story || fields.target_persona || fields.industry_market || "";
-    if (contextText.trim().length > 15) {
-      score += 20;
-      checklist.push({ id: "context", passed: true, weight: 20, label: { ar: "سياق ومعطيات كافية", en: "Relevant Context Provided" } });
-    } else {
-      checklist.push({ id: "context", passed: false, weight: 20, label: { ar: "السياق غير كافٍ أو مفقود", en: "Missing situational context" } });
-      suggestions.push({ ar: "أضف معلومات توضيحية أو سياقاً عملياً لمساعدة النموذج (+20%).", en: "Provide working background or context (+20%)." });
+    if (typeId === "image") {
+      return /(?:lighting|composition|camera|photorealistic|render|aspect ratio|octane|bokeh|إضاءة|تكوين|كاميرا|واقعي|سينمائي|أبعاد)/i.test(text);
     }
-
-    const deliverableText = fields.desired_result || fields.expected_behavior || fields.format_type || fields.strategic_deliverable || fields.cta || "";
-    if (deliverableText.trim().length > 0) {
-      score += 20;
-      checklist.push({ id: "deliverable", passed: true, weight: 20, label: { ar: "هيكل المخرجات محدد بدقة", en: "Clear Deliverable Specification" } });
-    } else {
-      checklist.push({ id: "deliverable", passed: false, weight: 20, label: { ar: "شكل النتيجة النهائية غير محدد", en: "Undefined deliverable format" } });
-      suggestions.push({ ar: "حدد شكل المخرجات المتوقعة (كود، جدول، قائمة) (+20%).", en: "Specify the exact desired deliverable (+20%)." });
+    if (typeId === "marketing") {
+      return /(?:audience|persona|cta|conversion|hook|channel|funnel|جمهور|تحويل|قيمة|حملة|نداء)/i.test(text);
     }
-
-    const constraintsText = fields.constraints || fields.technical_constraints || fields.sources_standard || fields.negative_prompt || fields.voice_tone || "";
-    if (constraintsText.trim().length > 0) {
-      score += 20;
-      checklist.push({ id: "constraints", passed: true, weight: 20, label: { ar: "قيود ومحددات وقائية", en: "Operational Guardrails & Constraints" } });
-    } else {
-      checklist.push({ id: "constraints", passed: false, weight: 20, label: { ar: "بدون قيود أو محددات", en: "No constraints or boundaries set" } });
-      suggestions.push({ ar: "حدد قيوداً صريحة لتفادي الهلوسة (+20%).", en: "Add explicit constraints or boundaries (+20%)." });
+    if (typeId === "research") {
+      return /(?:methodology|source|citation|hypothesis|evidence|analysis|منهجية|مصادر|أدلة|فرضية|دراسة)/i.test(text);
     }
+    return text.length > 80;
+  },
 
-    const audienceText = fields.target_audience || fields.stack || fields.readership || fields.medium_style || fields.channel || fields.key_variables || fields.current_proficiency || "";
-    if (audienceText.trim().length > 0) {
-      score += 15;
-      checklist.push({ id: "audience", passed: true, weight: 15, label: { ar: "الجمهور أو البيئة التقنية محددة", en: "Target Audience / Domain Calibration" } });
-    } else {
-      checklist.push({ id: "audience", passed: false, weight: 15, label: { ar: "الجمهور أو البيئة غير محددة", en: "Unspecified audience / tech stack" } });
-      suggestions.push({ ar: "حدد الجمهور المستهدف أو التقنيات المستخدمة (+15%).", en: "Specify target reader or technical stack (+15%)." });
+  _getDomainSuggestion(typeId, isArabic) {
+    if (typeId === "coding") {
+      return isArabic
+        ? "حدد لغة البرمجة، الإطار المستخدم، وآلية معالجة الأخطاء والاختبارات."
+        : "Specify the language, runtime/framework version, error handling strategy, and test expectations.";
     }
-
-    let rating = { ar: "يحتاج لمزيد من التفاصيل", en: "Needs More Detail" };
-    if (score >= 85) rating = { ar: "احترافي وعالي الدقة", en: "Production-Grade" };
-    else if (score >= 65) rating = { ar: "جيد ومنظم", en: "Solid & Usable" };
-    else if (score >= 40) rating = { ar: "متوسط", en: "Acceptable" };
-
-    return {
-      score: Math.min(100, Math.max(10, score)),
-      rating,
-      checklist,
-      suggestions: suggestions.slice(0, 3)
-    };
+    if (typeId === "image") {
+      return isArabic
+        ? "حدد زاوية الكاميرا، نمط الإضاءة (مثل سينمائية درامية)، والأبعاد المطلوبة (16:9 أو 1:1)."
+        : "Specify camera framing, lighting style (e.g. volumetric natural), textures, and aspect ratio.";
+    }
+    if (typeId === "marketing") {
+      return isArabic
+        ? "حدد الشريحة المستهدفة بوضوح، القيمة الفريدة للمنتج، ونداء الإجراء المطلوب (CTA)."
+        : "Define the target customer persona, unique value proposition, and primary Call to Action (CTA).";
+    }
+    return isArabic
+      ? "أضف تفاصيل دقيقة ومعايير واضحة بدلاً من الإرشادات العامة."
+      : "Add concrete operational specifics and explicit standards instead of broad guidance.";
   }
 };
