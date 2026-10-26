@@ -567,5 +567,202 @@ export const taskProfiles = [
         required: false
       }
     ]
+  },
+
+  {
+    id: "debugging",
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></svg>`,
+    name: {
+      ar: "تصحيح الأخطاء ومراجعة الكود",
+      en: "Debugging & Code Review"
+    },
+    tagline: {
+      ar: "تشخيص الأعطال، تتبع الـ Stack Traces، وفحص الثغرات",
+      en: "Root-cause diagnosis, stack trace dissection, and vulnerability reviews"
+    },
+    description: {
+      ar: "يحلل رسائل الخطأ، يكتشف التسريبات البرمجية، ويوجه النموذج لإيجاد الحل الجذري مع اختبارات مانعة للتكرار.",
+      en: "Isolates runtime bugs, deadlocks, and edge-case exceptions with preventive regression tests."
+    },
+    defaultIntent: "create",
+    fields: [
+      {
+        id: "bug_symptom",
+        label: { ar: "العَرَض أو رسالة الخطأ (Bug Symptoms & Error Message)", en: "Error Symptoms & Stack Trace" },
+        placeholder: { ar: "الصق رسالة الخطأ، كود الاستثناء، أو السلوك غير المتوقع...", en: "Paste the exact error message, stack trace, or unexpected behavior..." },
+        type: "textarea",
+        rows: 3,
+        required: true
+      },
+      {
+        id: "tech_stack_env",
+        label: { ar: "بيئة العمل والتقنيات (Environment & Tech Stack)", en: "Runtime Environment & Versions" },
+        placeholder: { ar: "Node.js v20, PostgreSQL 15, Docker, React 18...", en: "e.g., Python 3.11, Django 4.2, Redis 7, deployed on AWS ECS..." },
+        type: "text",
+        required: true
+      },
+      {
+        id: "expected_behavior",
+        label: { ar: "السلوك المتوقع (Expected Behavior)", en: "Expected Behavior" },
+        placeholder: { ar: "ما الذي كان ينبغي أن يحدث بدلاً من الخطأ؟", en: "What should have happened instead of this failure?" },
+        type: "textarea",
+        rows: 2,
+        required: false
+      },
+      {
+        id: "repro_steps",
+        label: { ar: "خطوات إعادة الإنتاج (Reproduction Steps / Constraints)", en: "Reproduction Steps or Constraints" },
+        placeholder: { ar: "يحدث عند إرسال طلب POST بحجم يتجاوز 5MB...", en: "Occurs when concurrent requests exceed 500, or payload has null values..." },
+        type: "text",
+        required: false
+      }
+    ]
+  },
+
+  {
+    id: "architecture",
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="3" y="3" rx="2"/><rect width="8" height="8" x="13" y="3" rx="2"/><rect width="8" height="8" x="8" y="13" rx="2"/><path d="M7 11v2a2 2 0 0 0 2 2h2"/><path d="M17 11v2a2 2 0 0 1-2 2h-2"/></svg>`,
+    name: {
+      ar: "هندسة ومعمارية الأنظمة",
+      en: "System Architecture & Design"
+    },
+    tagline: {
+      ar: "تصميم النظم الموزعة، قابلية التوسع، والمفاضلات المعمارية",
+      en: "Distributed systems, fault tolerance, scalability, and ADR trade-offs"
+    },
+    description: {
+      ar: "يصيغ متطلبات معمارية للأنظمة الضخمة، الميكروسيرفس، والتطبيقات السحابية مع ضوابط الأمان والـ SLAs.",
+      en: "Architects scalable microservices, event-driven pipelines, caching layers, and high-availability systems."
+    },
+    defaultIntent: "create",
+    fields: [
+      {
+        id: "system_goal",
+        label: { ar: "طبيعة النظام والهدف المعماري (System Scope & Objectives)", en: "System Scope & Strategic Objective" },
+        placeholder: { ar: "نظام دفع إلكتروني عالي التوافر، محرك تدفق بيانات آنية...", en: "Real-time payment gateway, event-driven analytics pipeline, multi-tenant SaaS..." },
+        type: "textarea",
+        rows: 3,
+        required: true
+      },
+      {
+        id: "scale_traffic",
+        label: { ar: "معدل الحمل والتوسع (Scale, Traffic & SLA Requirements)", en: "Scale, Throughput & SLAs" },
+        placeholder: { ar: "10,000 req/sec, 99.99% uptime, p99 latency < 50ms...", en: "10k RPS peak, 99.99% availability SLA, sub-50ms p99 latency..." },
+        type: "text",
+        required: true
+      },
+      {
+        id: "infra_constraints",
+        label: { ar: "القيود التقنية والبنية التحتية (Infrastructure Constraints)", en: "Infrastructure & Technology Constraints" },
+        placeholder: { ar: "AWS EKS, Kafka, PostgreSQL, Zero-trust security...", en: "Kubernetes, Apache Kafka, Cassandra, strictly open-source components..." },
+        type: "text",
+        required: false
+      },
+      {
+        id: "deliverable_focus",
+        label: { ar: "محور المخرجات المعمارية (Architectural Deliverables)", en: "Target Architectural Output" },
+        placeholder: { ar: "مخطط C4، سجل قرارات معمارية (ADR)، نموذج تدفق البيانات وتفادي الأعطال...", en: "C4 model diagram description, ADR trade-off matrix, disaster recovery protocols..." },
+        type: "text",
+        required: false
+      }
+    ]
+  },
+
+  {
+    id: "automation",
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>`,
+    name: {
+      ar: "الأتمتة والسكربتات",
+      en: "Automation & Scripting"
+    },
+    tagline: {
+      ar: "أتمتة المهام المتكررة، الـ Webhooks، والتكامل عبر الـ APIs",
+      en: "Workflow automation, API integrations, ETL scripts, and CI/CD jobs"
+    },
+    description: {
+      ar: "يبني تعليمات دقيقة لتطوير سكربتات الأتمتة (Bash, Python, Zapier, GitHub Actions) مع تدابير المعالجة التلقائية للأخطاء.",
+      en: "Engineers robust automation scripts with error recovery, retry backoff, and state idempotency."
+    },
+    defaultIntent: "create",
+    fields: [
+      {
+        id: "automation_task",
+        label: { ar: "المهمة المراد أتمتتها (Task to Automate)", en: "Automation Workflow Directive" },
+        placeholder: { ar: "سحب التقارير اليومية من Stripe وتحديث جداول Google Sheets وتنبيه Slack...", en: "Extract daily Stripe invoices, transform data, update BigQuery, and alert via Slack webhook..." },
+        type: "textarea",
+        rows: 3,
+        required: true
+      },
+      {
+        id: "tools_platforms",
+        label: { ar: "الأدوات والمنصات (Tools, Runtimes & APIs)", en: "Runtimes, APIs & Tooling" },
+        placeholder: { ar: "Python, Requests, GitHub Actions, AWS Lambda, CRON...", en: "Python 3.12, GitHub Actions, Docker, Webhooks, Cron..." },
+        type: "text",
+        required: true
+      },
+      {
+        id: "trigger_schedule",
+        label: { ar: "المحفز أو جدول التشغيل (Trigger Mechanism / Schedule)", en: "Trigger or Schedule" },
+        placeholder: { ar: "تشغيل كل ساعة (CRON)، عند وصول Webhook، أو يدوي...", en: "Every 15 minutes, on Git push, upon inbound Webhook payload..." },
+        type: "text",
+        required: false
+      },
+      {
+        id: "failure_handling",
+        label: { ar: "التعامل مع الفشل والقيود (Retry & Failure Handling)", en: "Failure Modes & Edge Cases" },
+        placeholder: { ar: "إعادة المحاولة 3 مرات بفاصل تراكمي وإشعار المسؤول عند الفشل...", en: "Exponential backoff on 429/5xx, idempotent retries, dead-letter queue..." },
+        type: "text",
+        required: false
+      }
+    ]
+  },
+
+  {
+    id: "translation",
+    icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+    name: {
+      ar: "الترجمة والتعريب التقني",
+      en: "Translation & Localization"
+    },
+    tagline: {
+      ar: "تعريب تقني احترافي يحافظ على المصطلحات وهياكل الأكواد",
+      en: "Technical localization preserving identifiers, tone, and cultural nuances"
+    },
+    description: {
+      ar: "يوجه النماذج لترجمة المحتوى المعقد تقنياً أو تسويقياً بدقة مع الحفاظ على مصطلحات الـ API والتنسيق الأصلي.",
+      en: "Directs AI to localize documentation, UI strings, and articles while safeguarding technical identifiers."
+    },
+    defaultIntent: "rewrite",
+    fields: [
+      {
+        id: "source_text",
+        label: { ar: "النص أو المادة المراد تعريبها (Source Content or Context)", en: "Source Content or Material" },
+        placeholder: { ar: "الصق النص أو صف نوع الوثائق المطلوب ترجمتها...", en: "Paste source documentation, UI string catalog, or article context..." },
+        type: "textarea",
+        rows: 3,
+        required: true
+      },
+      {
+        id: "source_target_lang",
+        label: { ar: "اللغات المستهدفة (Source & Target Languages / Dialect)", en: "Source & Target Languages" },
+        placeholder: { ar: "من الإنجليزية إلى العربية الفصحى المعاصرة...", en: "English to Modern Standard Arabic (or vice versa)..." },
+        type: "text",
+        required: true
+      },
+      {
+        id: "glossary_terms",
+        label: { ar: "المصطلحات الثابتة الواجب حفظها (Protected Technical Terms / Glossary)", en: "Protected Terms & Glossary" },
+        placeholder: { ar: "الاحتفاظ بأسماء المتغيرات، أسماء الـ APIs، ومصطلحات مثل Pipeline و Token...", en: "Keep variable names, JSON keys, and terms like 'Webhook', 'Middleware', 'Payload' in English..." },
+        type: "text",
+        required: false
+      },
+      {
+        id: "tone_style",
+        label: { ar: "النبرة والأسلوب المعتمد (Tone & Target Audience)", en: "Tone & Voice" },
+        placeholder: { ar: "تقني رصين، واجهات مستخدم مقتضبة، تسويقي جذاب...", en: "Authoritative technical guide, concise UI UX copy, academic journal..." },
+        type: "text",
+        required: false
+      }
+    ]
   }
 ];
