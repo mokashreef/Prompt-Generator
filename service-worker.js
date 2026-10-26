@@ -3,7 +3,7 @@
  * 100% Client-Side. Caches core assets on install.
  */
 
-const CACHE_NAME = "promptgen-v2";
+const CACHE_NAME = "promptgen-v3";
 const STATIC_ASSETS = [
   "./",
   "./index.html",
@@ -17,6 +17,13 @@ const STATIC_ASSETS = [
   "./js/data/translations.js",
   "./js/data/taskProfiles.js",
   "./js/data/examples.js",
+  "./js/ai/BaseProvider.js",
+  "./js/ai/PollinationsProvider.js",
+  "./js/ai/OpenAICompatibleProvider.js",
+  "./js/ai/OllamaProvider.js",
+  "./js/ai/DeterministicFallbackProvider.js",
+  "./js/ai/ProviderManager.js",
+  "./js/engine/aiPromptPipeline.js",
   "./js/engine/intentDetector.js",
   "./js/engine/promptEngine.js",
   "./js/engine/actionTransformer.js",

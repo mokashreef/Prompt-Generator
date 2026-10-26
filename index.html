@@ -5,23 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- SEO Primary -->
-  <title>Prompt Generator - محرك هندسة البرومبتات الذكي</title>
-  <meta name="description" content="أداة ويب احترافية ومستقلة لتوليد Prompts عالية الجودة لنماذج الذكاء الاصطناعي بناءً على تشخيص النية وهياكل المهام المخصصة بدون أي API أو تسجيل دخول. تعمل بالكامل محلياً.">
-  <meta name="keywords" content="Prompt Generator, Prompt Engineering, هندسة الأوامر, برومبت, ذكاء اصطناعي, Midjourney prompts, ChatGPT prompts, Claude prompts, Code Elta6ur">
+  <title>Prompt Generator - محرك هندسة البرومبتات بالذكاء الاصطناعي</title>
+  <meta name="description" content="منصة متطورة لهندسة البرومبتات مدعومة بالذكاء الاصطناعي الحقيقي (Pollinations AI, Groq, Ollama) ومحرك حتمي شفاف. تدعم 14 تخصصاً برمجياً وتحليلياً مع فحص دقيق للجودة.">
+  <meta name="keywords" content="Prompt Generator, Prompt Engineering, هندسة الأوامر, برومبت, ذكاء اصطناعي, Pollinations AI, Ollama, Groq, Midjourney prompts, ChatGPT prompts, Claude prompts, Code Elta6ur">
   <meta name="author" content="Mohammad Abu Khashreef (Code Elta6ur)">
   <meta name="robots" content="index, follow">
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://mokashreef.github.io/Prompt-Generator/">
-  <meta property="og:title" content="Prompt Generator - محرك هندسة البرومبتات الذكي">
-  <meta property="og:description" content="أنشئ برومبت مخصص واحترافي خلال ثوانٍ بدون قوالب مكررة أو وسيط API. تعمل محلياً 100% مع تشخيص فوري للنية ومقياس للجودة.">
+  <meta property="og:title" content="Prompt Generator - محرك هندسة البرومبتات بالذكاء الاصطناعي">
+  <meta property="og:description" content="هندسة برومبتات احترافية باستخدام استدلال الذكاء الاصطناعي الفعلي والمحرك الحتمي الاحتياطي مع تقييم جودة متقدم عبر 6 أبعاد.">
   <meta property="og:image" content="./assets/icons/icon-512.png">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Prompt Generator - Intent-Driven AI Prompts">
-  <meta name="twitter:description" content="100% client-side prompt engineering engine with dynamic task profiles, quality scoring, and zero external APIs.">
+  <meta name="twitter:title" content="Prompt Generator - AI-Powered Prompt Engineering">
+  <meta name="twitter:description" content="Real AI prompt engineering with multi-provider abstraction, dynamic model discovery, task-aware quality evaluation, and transparent fallback.">
   <meta name="twitter:image" content="./assets/icons/icon-512.png">
 
   <!-- PWA & Mobile Web App -->
@@ -55,8 +55,20 @@
         </div>
       </a>
 
+      <!-- AI Provider Live Status Pill in Header -->
+      <button id="btn-ai-status-toggle" class="btn-ai-status" type="button" title="AI Provider & Model Settings">
+        <span id="header-status-dot" class="status-dot"></span>
+        <span id="header-ai-label">Pollinations: gpt-5.4-nano</span>
+      </button>
+
       <div class="header-actions">
-        <!-- Quick Nav Triggers -->
+        <!-- AI Settings Trigger -->
+        <button id="nav-ai-settings-btn" class="btn-header" type="button" title="AI Settings" data-i18n-title="navAiSettings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span data-i18n="navAiSettings">إعدادات الذكاء الاصطناعي</span>
+        </button>
+
+        <!-- Presets -->
         <button id="nav-examples-btn" class="btn-header" type="button" data-i18n-title="navExamples">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 2 4 4-12 12H6v-4L18 2Z"/><path d="m14 6 4 4"/></svg>
           <span data-i18n="navExamples">أمثلة سريعة</span>
@@ -98,34 +110,34 @@
   <section class="hero-section">
     <div class="container">
       <div class="hero-badge-pill">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <span data-i18n="heroBadge">محلي 100% • بدون API • يعمل بدون إنترنت • خصوصية تامة</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"/><path d="m9 12 2 2 4-4"/></svg>
+        <span data-i18n="heroBadge">ذكاء اصطناعي حقيقي • استدلال فعلي • حماية الخصوصية • محرك احتياطي حتمي</span>
       </div>
-      <h1 class="hero-title" data-i18n="heroTitle">أنشئ برومبت احترافي خلال ثوانٍ</h1>
+      <h1 class="hero-title" data-i18n="heroTitle">هندسة برومبتات احترافية بالذكاء الاصطناعي</h1>
       <p class="hero-description" data-i18n="heroDesc">
-        أداة سريعة ومستقلة تحول فكرتك البسيطة إلى برومبت دقيق وموجه هندسياً بناءً على نوع المهمة والنية الحقيقية وراء طلبك. لا تعتمد على قالب مكرر، ولا تستخدم أي API خارجي، وبياناتك تبقى في متصفحك.
+        حوّل أفكارك الأولية ومتطلباتك المعقدة إلى برومبتات فائقة الدقة والفاعلية باستخدام استدلال الذكاء الاصطناعي الفعلي عبر Pollinations AI ونماذج مفتوحة ومحلية، مع محرك حتمي شفاف عند عدم توفر الاتصال.
       </p>
 
       <div class="features-banner">
         <div class="feature-item">
           <span class="feature-dot"></span>
-          <span data-i18n="featureNoApi">بدون أي AI API</span>
+          <span data-i18n="featureAiReal">استدلال ذكاء اصطناعي حقيقي</span>
         </div>
         <div class="feature-item">
           <span class="feature-dot"></span>
-          <span data-i18n="featurePrivate">خصوصية محلية 100%</span>
+          <span data-i18n="featurePrivate">حماية تامة للمفاتيح محلياً</span>
         </div>
         <div class="feature-item">
           <span class="feature-dot"></span>
-          <span data-i18n="featureInstant">توليد فوري مباشر</span>
+          <span data-i18n="featureMultiProvider">مزودات متعددة ودعم Ollama</span>
         </div>
         <div class="feature-item">
           <span class="feature-dot"></span>
-          <span data-i18n="featureOffline">يعمل دون إنترنت</span>
+          <span data-i18n="featureFallback">محرك حتمي احتياطي شفاف</span>
         </div>
       </div>
 
-      <!-- Direct Extension Download Callout in Hero -->
+      <!-- Extension Callout -->
       <div class="hero-extension-callout">
         <div class="hero-ext-info">
           <span class="hero-ext-tag" data-i18n="heroExtTag">جديد: إضافة Chrome للمتصفح</span>
@@ -145,13 +157,13 @@
     </div>
   </section>
 
-  <!-- 10 Task Profiles Selection Section -->
+  <!-- Task Profiles Selection Section -->
   <section class="selector-controls">
     <div class="container">
       <div class="controls-row">
         <div>
-          <h2 style="font-size: 1.125rem; font-weight: 700;" data-i18n="profilesHeading">نوع المهمة (Task Profile)</h2>
-          <p style="font-size: 0.8125rem; color: var(--text-muted);" data-i18n="profilesSubtitle">اختر نوع المهمة أو ابدأ بالبرومبت العام ليتكيف تلقائياً مع فكرتك:</p>
+          <h2 style="font-size: 1.125rem; font-weight: 700;" data-i18n="profilesHeading">نوع ومجال المهمة (Task Domain)</h2>
+          <p style="font-size: 0.8125rem; color: var(--text-muted);" data-i18n="profilesSubtitle">اختر مجال المهمة لضبط سياق البرومبت أو ابدأ بالعام للتكيف التلقائي:</p>
         </div>
 
         <!-- Search Input -->
@@ -161,7 +173,7 @@
         </div>
       </div>
 
-      <!-- 10 Core Task Profiles Grid -->
+      <!-- Task Profiles Grid -->
       <div id="task-profile-grid" class="prompt-type-grid" role="region" aria-label="Task Profile Selection">
         <!-- Rendered dynamically by JavaScript -->
       </div>
@@ -194,20 +206,34 @@
           </div>
         </div>
 
-        <!-- Intent & Style Configuration Bar -->
+        <!-- Generation Mode Selector Pills -->
+        <div class="mode-selector-wrapper">
+          <span class="mode-selector-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span data-i18n="generationModesTitle">نمط توليد البرومبت (Prompt Generation Mode):</span>
+          </span>
+          <div id="mode-pills-container" class="mode-pills-grid">
+            <!-- Dynamically populated or rendered buttons -->
+          </div>
+        </div>
+
+        <!-- Target Platform & Output Language Controls -->
         <div class="config-group-box">
           <div class="config-row">
-            
-            <!-- Intent Selector & Auto-Detection Status -->
             <div class="config-select-grid">
+              
+              <!-- Target Platform / LLM Architecture -->
               <div class="config-item">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                  <label for="select-task-intent" class="config-label" data-i18n="intentSelectorLabel">النية الأساسية (Intent):</label>
-                  <span id="detected-intent-badge" class="badge-intent" title="Intent auto-detected from your input">إنشاء وبناء</span>
-                </div>
+                <label for="select-target-platform" class="config-label" data-i18n="targetPlatformLabel">النموذج أو المنصة المستهدفة:</label>
                 <div class="select-wrapper">
-                  <select id="select-task-intent" class="form-control form-select">
-                    <!-- Populated dynamically from INTENTS -->
+                  <select id="select-target-platform" class="form-control form-select">
+                    <option value="general">عام / لكافة النماذج (Universal)</option>
+                    <option value="chatgpt">ChatGPT (GPT-4o / GPT-5)</option>
+                    <option value="claude">Claude (Sonnet / Opus)</option>
+                    <option value="gemini">Google Gemini</option>
+                    <option value="deepseek">DeepSeek (V3 / R1)</option>
+                    <option value="midjourney">Midjourney / Flux (Visual)</option>
+                    <option value="cursor">Cursor / Copilot (IDE Code)</option>
                   </select>
                 </div>
               </div>
@@ -219,37 +245,46 @@
                   <select id="select-target-lang" class="form-control form-select">
                     <option value="auto" data-i18n="langAuto">نفس لغة الإدخال (تلقائي)</option>
                     <option value="en" data-i18n="langEn">الإنجليزية (موصى بها لأغلب النماذج)</option>
-                    <option value="ar" data-i18n="langAr">العربية الفصحى</option>
+                    <option value="ar" data-i18n="langAr">العربية الفصحى (مع حماية الأكواد)</option>
                   </select>
                 </div>
               </div>
-            </div>
 
-            <!-- Prompt Style (Segmented Radio) -->
-            <div class="config-item">
-              <span class="config-label" data-i18n="promptStyleLabel">نمط البرومبت (Prompt Style):</span>
-              <div class="segmented-control" role="radiogroup">
-                <div class="segmented-option">
-                  <input type="radio" id="style-simple" name="prompt-style" value="simple">
-                  <label for="style-simple" class="segmented-label" data-i18n="styleSimple">بسيط ومباشر</label>
-                </div>
-                <div class="segmented-option">
-                  <input type="radio" id="style-pro" name="prompt-style" value="professional" checked>
-                  <label for="style-pro" class="segmented-label" data-i18n="stylePro">احترافي ومنظم</label>
-                </div>
-                <div class="segmented-option">
-                  <input type="radio" id="style-detailed" name="prompt-style" value="detailed">
-                  <label for="style-detailed" class="segmented-label" data-i18n="styleDetailed">مفصل وشامل</label>
-                </div>
-              </div>
             </div>
-
           </div>
         </div>
 
         <!-- Dynamic Form Fields Container -->
         <div id="dynamic-form-container">
           <!-- Rendered by formRenderer.js based on taskProfile schema -->
+        </div>
+
+        <!-- Advanced Directives Collapsible Drawer -->
+        <button id="btn-toggle-advanced-drawer" type="button" class="advanced-drawer-toggle">
+          <span style="display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+            <span data-i18n="advancedDirectivesTitle">محددات وتوجيهات إضافية متقدمة (Advanced Parameters)</span>
+          </span>
+          <span style="font-size: 0.75rem; opacity: 0.7;">+ اختياري</span>
+        </button>
+
+        <div id="advanced-drawer-content" class="advanced-drawer-content">
+          <div class="settings-form-group">
+            <label for="adv-audience" class="settings-label">الجمهور المستهدف أو بيئة الاستهلاك:</label>
+            <input type="text" id="adv-audience" class="form-control" placeholder="مثال: مهندسو برمجيات كبار، عملاء B2B، مستخدمون غير تقنيين...">
+          </div>
+          <div class="settings-form-group">
+            <label for="adv-constraints" class="settings-label">القيود والمحددات السلبية (ما يجب تجنبه):</label>
+            <input type="text" id="adv-constraints" class="form-control" placeholder="مثال: بدون مكتبات طرف ثالث، تجنب الحشو والترحيب، بدون أطر مهجورة...">
+          </div>
+          <div class="settings-form-group">
+            <label for="adv-deliverable" class="settings-label">صيغة وهيكل المخرجات المطلوبة:</label>
+            <input type="text" id="adv-deliverable" class="form-control" placeholder="مثال: جدول مقارنة Markdown، كود برمجي فقط مع تعليقات، خطوات رقمية...">
+          </div>
+          <div class="settings-form-group">
+            <label for="adv-tech-env" class="settings-label">البيئة التقنية وإصدارات الحزم (إن وجدت):</label>
+            <input type="text" id="adv-tech-env" class="form-control" placeholder="مثال: Laravel 11, PHP 8.3, PostgreSQL 16, TailwindCSS v4...">
+          </div>
         </div>
 
         <!-- Real-Time Quality Score Card -->
@@ -281,7 +316,7 @@
         <div class="form-actions-bar">
           <button id="btn-generate-prompt" class="btn-primary-generate" type="button">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            <span data-i18n="btnGenerate">إنشاء البرومبت</span>
+            <span id="btn-generate-text" data-i18n="btnGenerate">إنشاء البرومبت بالذكاء الاصطناعي</span>
           </button>
         </div>
       </section>
@@ -298,6 +333,15 @@
           </div>
         </div>
 
+        <!-- Provenance Banner (Real AI vs Fallback) -->
+        <div id="provenance-banner" class="provenance-banner provenance-real-ai" style="display: none;">
+          <div class="provenance-info">
+            <span id="provenance-icon">✓</span>
+            <span id="provenance-text" data-i18n="provenanceRealAi">تم التوليد بنجاح عبر استدلال الذكاء الاصطناعي الحقيقي</span>
+          </div>
+          <div id="provenance-meta" class="provenance-meta">Pollinations • openai/gpt-5.4-nano</div>
+        </div>
+
         <!-- Empty Placeholder State -->
         <div id="output-empty-state" class="output-empty">
           <svg class="output-empty-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -305,7 +349,7 @@
             <polyline points="9 8 15 12 9 16"/>
           </svg>
           <p class="output-empty-text" data-i18n="outputEmptyState">
-            اكتب ما تريد تحقيقه واضغط على «إنشاء البرومبت» لتوليد أمر احترافي ومخصص هنا.
+            اكتب متطلبات مهمتك واضغط على «إنشاء البرومبت» لتوليد أمر احترافي مخصص وموجه هندسياً.
           </p>
         </div>
 
@@ -344,15 +388,35 @@
             </div>
 
             <div class="toolbar-group">
+              <!-- AI Superpowers: Alternatives, Evaluation, Improve -->
+              <button id="btn-alternatives-output" class="btn btn-outline" type="button" title="Generate 3 Alternative Approaches" data-i18n-title="btnAlternatives">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                <span data-i18n="btnAlternatives">3 بدائل هندسية</span>
+              </button>
+
+              <button id="btn-evaluate-output" class="btn btn-outline" type="button" title="Evaluate Prompt Quality" data-i18n-title="btnEvaluate">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                <span data-i18n="btnEvaluate">تقييم الجودة</span>
+              </button>
+
+              <button id="btn-improve-output" class="btn btn-outline" type="button" title="Improve Further" data-i18n-title="btnImprove">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span data-i18n="btnImprove">تطوير وتحسين</span>
+              </button>
+
               <button id="btn-regenerate-output" class="btn btn-outline" type="button" data-i18n-title="btnRegenerate">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
                 <span data-i18n="btnRegenerate">إعادة إنشاء</span>
               </button>
+
               <button id="btn-download-txt" class="btn btn-outline" type="button" title="Download .txt">
                 .txt
               </button>
               <button id="btn-download-md" class="btn btn-outline" type="button" title="Download .md">
                 .md
+              </button>
+              <button id="btn-download-json" class="btn btn-outline" type="button" title="Download .json">
+                .json
               </button>
             </div>
           </div>
@@ -361,15 +425,15 @@
 
     </div>
 
-    <!-- Privacy & Local Processing Assurance Banner -->
+    <!-- Privacy & Security Assurance Banner -->
     <div class="privacy-banner-card">
       <div class="privacy-banner-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       </div>
       <div class="privacy-banner-content">
-        <h4 data-i18n="privacyTitle">خصوصية تامة 100% وأمان محلي</h4>
+        <h4 data-i18n="privacyTitle">أمان تام وشفافية مطلقة</h4>
         <p data-i18n="privacyNotice">
-          يتم إنشاء البرومبتات محليًا داخل متصفحك، ولا يتم إرسال بياناتك إلى أي خدمة ذكاء اصطناعي خارجية.
+          مفاتيح الـ API وبياناتك لا تغادر متصفحك إطلاقاً؛ يتم استدعاء مزود الذكاء الاصطناعي مباشرة من جهازك.
         </p>
       </div>
     </div>
@@ -378,12 +442,155 @@
   <!-- Modals & Drawers Container -->
   <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true">
     
+    <!-- AI Settings Modal -->
+    <div id="ai-settings-modal" class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          <h3 class="modal-title" data-i18n="aiSettingsTitle">إعدادات محرك ومزود الذكاء الاصطناعي</h3>
+        </div>
+        <button class="btn-close-modal" type="button" aria-label="Close Modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="ai-settings-modal-body" class="modal-body" style="padding: 1.25rem;">
+        <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1.25rem;" data-i18n="aiSettingsDesc">
+          اختر مزود الاستدلال، النموذج النشط، وقم بإدارة المفاتيح بأمان محلي 100%.
+        </p>
+
+        <!-- Provider Selection -->
+        <div class="settings-form-group">
+          <label for="settings-provider-select" class="settings-label" data-i18n="aiProviderLabel">مزود الذكاء الاصطناعي (AI Provider):</label>
+          <select id="settings-provider-select" class="form-control form-select">
+            <option value="pollinations">Pollinations AI (Dynamic Catalog / OpenAI-Compatible)</option>
+            <option value="openai_compatible">OpenAI-Compatible (Groq Free Tier, OpenRouter, DeepSeek, OpenAI)</option>
+            <option value="ollama">Ollama (Local / 100% Offline & Private)</option>
+            <option value="deterministic_fallback">Deterministic Fallback Engine (Zero-API / Template-Free)</option>
+          </select>
+        </div>
+
+        <!-- Vendor Presets (for OpenAI Compatible) -->
+        <div id="settings-vendor-group" class="settings-form-group" style="display: none;">
+          <label for="settings-vendor-select" class="settings-label" data-i18n="vendorPresetLabel">خدمة مزودة متوافقة جاهزة:</label>
+          <select id="settings-vendor-select" class="form-control form-select">
+            <option value="groq">Groq (Ultra-Fast / Generous Free Tier)</option>
+            <option value="openrouter">OpenRouter (Supports Free Open-Weight Models)</option>
+            <option value="deepseek">DeepSeek Official (V3 / R1)</option>
+            <option value="openai">OpenAI Official (GPT-4o Mini / GPT-4o)</option>
+            <option value="custom">Custom Base URL</option>
+          </select>
+        </div>
+
+        <!-- Custom Base URL -->
+        <div id="settings-custom-url-group" class="settings-form-group" style="display: none;">
+          <label for="settings-base-url" class="settings-label" data-i18n="customUrlLabel">رابط الـ Base URL المخصص (OpenAI-Compatible):</label>
+          <input type="text" id="settings-base-url" class="form-control" placeholder="https://api.example.com/v1">
+        </div>
+
+        <!-- Model Selection -->
+        <div class="settings-form-group">
+          <label for="settings-model-select" class="settings-label" data-i18n="aiModelLabel">النموذج النشط (Active Model):</label>
+          <div class="input-with-button">
+            <select id="settings-model-select" class="form-control form-select" style="flex: 1;">
+              <!-- Populated dynamically via listModels -->
+            </select>
+            <button id="btn-refresh-models" class="btn btn-secondary" type="button" title="Refresh Live Model Catalog">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- API Key Input -->
+        <div id="settings-api-key-group" class="settings-form-group">
+          <label for="settings-api-key" class="settings-label" data-i18n="apiKeyLabel">مفتاح API الخاص بك (اختياري/حسب المزود):</label>
+          <div class="input-with-button">
+            <input type="password" id="settings-api-key" class="form-control" placeholder="sk-..." autocomplete="off">
+            <button id="btn-toggle-key-visibility" class="btn btn-secondary" type="button" title="Show / Hide API Key">
+              👁
+            </button>
+          </div>
+          <p class="settings-help" data-i18n="apiKeyHelp">يُحفظ المفتاح في متصفحك محلياً فقط (localStorage) ولا يُنقل لأي خوادم خارجية.</p>
+        </div>
+
+        <!-- Automatic Fallback Toggle -->
+        <div class="settings-form-group" style="display: flex; align-items: center; gap: 0.65rem; margin-top: 1rem;">
+          <input type="checkbox" id="settings-auto-fallback" checked style="width: 16px; height: 16px; cursor: pointer;">
+          <label for="settings-auto-fallback" style="font-size: 0.8125rem; color: var(--text-secondary); cursor: pointer;" data-i18n="autoFallbackLabel">
+            تفعيل التبديل التلقائي للمحرك الحتمي عند انقطاع الشبكة أو نفاد الرصيد
+          </label>
+        </div>
+
+        <!-- Test Connection Button & Result Box -->
+        <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+          <button id="btn-test-provider-connection" class="btn-test-connection" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span data-i18n="btnTestConnection">فحص الاتصال والاستجابة</span>
+          </button>
+          <div id="test-connection-result" class="test-result-box"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-save-ai-settings" class="btn btn-sm btn-primary" type="button" data-i18n="btnSaveSettings">
+          حفظ الإعدادات
+        </button>
+        <button class="btn btn-sm btn-secondary btn-close-modal" type="button" data-i18n="closeModal">
+          إغلاق
+        </button>
+      </div>
+    </div>
+
+    <!-- Alternatives Modal -->
+    <div id="alternatives-modal" class="modal-card" style="max-width: 820px;">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          <h3 class="modal-title" data-i18n="alternativesModalTitle">3 بدائل هندسية مختلفة لنفس المهمة</h3>
+        </div>
+        <button class="btn-close-modal" type="button" aria-label="Close Modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="alternatives-modal-body" class="modal-body" style="padding: 1.25rem;">
+        <!-- Populated dynamically with 3 alternatives -->
+      </div>
+      <div class="modal-footer">
+        <div></div>
+        <button class="btn btn-sm btn-secondary btn-close-modal" type="button" data-i18n="closeModal">
+          إغلاق
+        </button>
+      </div>
+    </div>
+
+    <!-- Evaluation Diagnostic Report Modal -->
+    <div id="evaluation-modal" class="modal-card" style="max-width: 820px;">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <h3 class="modal-title" data-i18n="evaluationModalTitle">التقييم الهندسي لجودة البرومبت</h3>
+        </div>
+        <button class="btn-close-modal" type="button" aria-label="Close Modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="evaluation-modal-body" class="modal-body" style="padding: 1.25rem;">
+        <!-- Populated dynamically with diagnostic report -->
+      </div>
+      <div class="modal-footer">
+        <button id="btn-apply-eval-improvements" class="btn btn-sm btn-primary" type="button" data-i18n="applyImprovements">
+          تطبيق التحسينات المقترحة
+        </button>
+        <button class="btn btn-sm btn-secondary btn-close-modal" type="button" data-i18n="closeModal">
+          إغلاق
+        </button>
+      </div>
+    </div>
+
     <!-- History Modal -->
     <div id="history-modal" class="modal-card">
       <div class="modal-header">
         <div class="modal-title-wrap">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <h3 class="modal-title" data-i18n="historyTitle">سجل البرومبتات المولّدة محلياً</h3>
+          <h3 class="modal-title" data-i18n="historyTitle">سجل البرومبتات المولّدة</h3>
           <span id="history-count-badge" class="header-badge">0</span>
         </div>
         <button class="btn-close-modal" type="button" aria-label="Close Modal">
@@ -440,6 +647,8 @@
           إغلاق
         </button>
       </div>
+    </div>
+
     <!-- Chrome Extension Modal -->
     <div id="extension-modal" class="modal-card">
       <div class="modal-header">
@@ -453,7 +662,7 @@
       </div>
       <div id="extension-modal-body" class="modal-body" style="padding: 1.25rem;">
         <p style="margin-bottom: 1rem; color: var(--text-secondary); line-height: 1.6;" data-i18n="extModalDesc">
-          حسّن وأعد صياغة أي برومبت مباشرة في أي صفحة (ChatGPT, Claude, Gemini, وغيرها) بدون فتح الموقع وبدون أي API خارجي.
+          حسّن وأعد صياغة أي برومبت مباشرة في أي صفحة (ChatGPT, Claude, Gemini, وغيرها) بدون فتح الموقع.
         </p>
         
         <!-- Direct Extension Download Box -->
@@ -482,8 +691,8 @@
 
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 140px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 6px; padding: 0.75rem; text-align: center;">
-            <strong style="color: var(--accent-primary); display: block; font-size: 0.85rem;">100% بدون AI API</strong>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">معالجة محلية بالكامل</span>
+            <strong style="color: var(--accent-primary); display: block; font-size: 0.85rem;">استدلال AI حقيقي</strong>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">دعم النماذج الحية</span>
           </div>
           <div style="flex: 1; min-width: 140px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 6px; padding: 0.75rem; text-align: center;">
             <strong style="color: var(--color-success); display: block; font-size: 0.85rem;">Chrome Side Panel</strong>
@@ -510,7 +719,7 @@
         <span class="footer-credit" data-i18n="footerCredit">برمجة وتصميم <a href="https://github.com/mokashreef" target="_blank" rel="noopener noreferrer">محمد أبو خشريف</a> • جزء من منظومة كود التطور</span>
       </div>
       <div class="footer-links">
-        <span data-i18n="offlineReadyNotice">يعمل بالكامل دون إنترنت</span>
+        <span data-i18n="offlineReadyNotice">يعمل المحرك الحتمي بالكامل دون إنترنت</span>
         <span>•</span>
         <a href="#top" data-i18n="backToTop">للأعلى ↑</a>
       </div>

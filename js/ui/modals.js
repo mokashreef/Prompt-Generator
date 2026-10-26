@@ -283,9 +283,350 @@ export const modals = {
     this.open("examples-modal");
   },
 
+  /**
+   * Opens and populates the AI Provider & Model Settings dialog.
+   * @param {Object} providerManager - The application's ProviderManager instance
+   * @param {Function} [onSaved] - Callback invoked after settings are saved
+   */
+  async openAiSettings(providerManager, onSaved) {
+    const lang = this.getLang();
+    const t = this.t[lang];
+
+    const providerSelect = document.getElementById("settings-provider-select");
+    const vendorGroup = document.getElementById("settings-vendor-group");
+    const vendorSelect = document.getElementById("settings-vendor-select");
+    const customUrlGroup = document.getElementById("settings-custom-url-group");
+    const customUrlInput = document.getElementById("settings-base-url");
+    const modelSelect = document.getElementById("settings-model-select");
+    const apiKeyGroup = document.getElementById("settings-api-key-group");
+    const apiKeyInput = document.getElementById("settings-api-key");
+    const btnToggleKey = document.getElementById("btn-toggle-key-visibility");
+    const autoFallbackCheck = document.getElementById("settings-auto-fallback");
+    const btnRefreshModels = document.getElementById("btn-refresh-models");
+    const btnTestConn = document.getElementById("btn-test-provider-connection");
+    const testResultBox = document.getElementById("test-connection-result");
+    const btnSave = document.getElementById("btn-save-ai-settings");
+
+    if (!providerSelect || !modelSelect) return;
+
+    // Populate current values from providerManager
+    const currentConfig = providerManager.config;
+    providerSelect.value = currentConfig.activeProviderId;
+
+    const activeProvider = providerManager.getActiveProvider();
+    autoFallbackCheck.checked = !!currentConfig.enableAutoFallback;
+
+    const syncUiVisibility = () => {
+      const pId = providerSelect.value;
+      if (pId === "openai_compatible") {
+        vendorGroup.style.display = "block";
+        const v = vendorSelect.value;
+        customUrlGroup.style.display = v === "custom" ? "block" : "none";
+        apiKeyGroup.style.display = "block";
+      } else if (pId === "ollama" || pId === "deterministic_fallback") {
+        vendorGroup.style.display = "none";
+        customUrlGroup.style.display = "none";
+        apiKeyGroup.style.display = "none";
+      } else {
+        // Pollinations
+        vendorGroup.style.display = "none";
+        customUrlGroup.style.display = "none";
+        apiKeyGroup.style.display = "block";
+      }
+    };
+
+    // Set vendor preset and keys if applicable
+    if (activeProvider.id === "openai_compatible") {
+      vendorSelect.value = activeProvider.vendorPreset || "groq";
+      customUrlInput.value = activeProvider.baseUrl || "";
+      apiKeyInput.value = activeProvider.apiKey || "";
+    } else {
+      apiKeyInput.value = activeProvider.apiKey || "";
+    }
+
+    syncUiVisibility();
+
+    // Model loader
+    const loadModels = async (forceRefresh = false) => {
+      modelSelect.innerHTML = `<option value="">${lang === "ar" ? "جارٍ جلب النماذج المتاحة..." : "Loading available models..."}</option>`;
+      modelSelect.disabled = true;
+
+      try {
+        const models = await providerManager.listModels(forceRefresh);
+        modelSelect.innerHTML = "";
+        models.forEach((m) => {
+          const opt = document.createElement("option");
+          opt.value = m.id;
+          opt.textContent = `${m.name || m.id}${m.isFree ? " (Free)" : ""}${m.isLocal ? " [Local]" : ""}`;
+          if (m.id === activeProvider.defaultModel) {
+            opt.selected = true;
+          }
+          modelSelect.appendChild(opt);
+        });
+      } catch (err) {
+        modelSelect.innerHTML = `<option value="${activeProvider.defaultModel}">${activeProvider.defaultModel}</option>`;
+      } finally {
+        modelSelect.disabled = false;
+      }
+    };
+
+    await loadModels(false);
+
+    // Event bindings
+    providerSelect.onchange = () => {
+      syncUiVisibility();
+      providerManager.updateConfig({ activeProviderId: providerSelect.value });
+      loadModels(true);
+    };
+
+    vendorSelect.onchange = () => {
+      syncUiVisibility();
+      if (vendorSelect.value !== "custom") {
+        customUrlInput.value = "";
+      }
+      providerManager.updateConfig({
+        activeProviderId: "openai_compatible",
+        providers: {
+          openai_compatible: {
+            vendorPreset: vendorSelect.value,
+            baseUrl: customUrlInput.value
+          }
+        }
+      });
+      loadModels(true);
+    };
+
+    btnRefreshModels.onclick = () => loadModels(true);
+
+    btnToggleKey.onclick = () => {
+      apiKeyInput.type = apiKeyInput.type === "password" ? "text" : "password";
+      btnToggleKey.textContent = apiKeyInput.type === "password" ? "👁" : "🔒";
+    };
+
+    btnTestConn.onclick = async () => {
+      btnTestConn.disabled = true;
+      btnTestConn.innerHTML = `<span class="status-dot"></span> <span>${t.testingConnection}</span>`;
+      testResultBox.className = "test-result-box";
+      testResultBox.style.display = "none";
+
+      try {
+        const res = await providerManager.testActiveConnection();
+        testResultBox.style.display = "block";
+        if (res.ok) {
+          testResultBox.className = "test-result-box success";
+          testResultBox.textContent = res.message;
+        } else {
+          testResultBox.className = "test-result-box error";
+          testResultBox.textContent = res.message;
+        }
+      } catch (err) {
+        testResultBox.style.display = "block";
+        testResultBox.className = "test-result-box error";
+        testResultBox.textContent = err.message;
+      } finally {
+        btnTestConn.disabled = false;
+        btnTestConn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span>${t.btnTestConnection}</span>
+        `;
+      }
+    };
+
+    btnSave.onclick = () => {
+      const pId = providerSelect.value;
+      const keyVal = apiKeyInput.value.trim();
+      const modelVal = modelSelect.value || activeProvider.defaultModel;
+
+      const patch = {
+        activeProviderId: pId,
+        enableAutoFallback: autoFallbackCheck.checked,
+        providers: {}
+      };
+
+      if (pId === "pollinations") {
+        patch.providers.pollinations = { apiKey: keyVal, defaultModel: modelVal };
+      } else if (pId === "openai_compatible") {
+        patch.providers.openai_compatible = {
+          vendorPreset: vendorSelect.value,
+          baseUrl: customUrlInput.value.trim(),
+          apiKey: keyVal,
+          defaultModel: modelVal
+        };
+      } else if (pId === "ollama") {
+        patch.providers.ollama = { defaultModel: modelVal };
+      }
+
+      providerManager.updateConfig(patch);
+      toast.show(lang === "ar" ? "تم حفظ إعدادات الذكاء الاصطناعي بنجاح" : "AI Settings saved successfully", "success");
+      this.close();
+      if (onSaved) onSaved();
+    };
+
+    this.open("ai-settings-modal");
+  },
+
+  /**
+   * Opens the 3 Alternatives Display Modal.
+   * @param {string} rawContent - The markdown output containing alternative sections
+   * @param {Function} onSelectAlternative - Callback to load selected alternative into workspace
+   */
+  openAlternatives(rawContent, onSelectAlternative) {
+    const lang = this.getLang();
+    const t = this.t[lang];
+    const container = document.getElementById("alternatives-modal-body");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    // Parse the 3 alternatives by markdown headings (### Alternative ...)
+    const sections = rawContent.split(/###\s+(?:Alternative|البديل)\s*[\d:A-Za-z\s\-]+/i).filter((s) => s.trim());
+    const titles = [
+      lang === "ar" ? "البديل الأول: الأسلوب الإجرائي المباشر" : "Alternative 1: Direct Procedural Approach",
+      lang === "ar" ? "البديل الثاني: تقمص الدور التحليلي المتخصص" : "Alternative 2: Expert Persona & Reasoning",
+      lang === "ar" ? "البديل الثالث: أسلوب القيود الصارمة والتحقق" : "Alternative 3: Constraint-First & Verification"
+    ];
+
+    const wrapEl = document.createElement("div");
+    wrapEl.className = "alternatives-container";
+
+    const parts = sections.length >= 3 ? sections : [rawContent];
+
+    parts.forEach((partText, idx) => {
+      const cleanPart = partText.trim();
+      const card = document.createElement("div");
+      card.className = "alternative-card";
+
+      const title = titles[idx] || (lang === "ar" ? `البديل رقم ${idx + 1}` : `Alternative ${idx + 1}`);
+
+      card.innerHTML = `
+        <div class="alternative-card-header">
+          <span class="alternative-card-title">${title}</span>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-sm btn-secondary btn-copy-alt">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span>${t.btnCopy}</span>
+            </button>
+            <button class="btn btn-sm btn-primary btn-select-alt">
+              <span>${t.useAlternative}</span>
+            </button>
+          </div>
+        </div>
+        <pre class="alternative-content-pre">${this._escapeHtml(cleanPart)}</pre>
+      `;
+
+      card.querySelector(".btn-copy-alt").addEventListener("click", () => {
+        navigator.clipboard.writeText(cleanPart);
+        toast.show(t.btnCopied, "success");
+      });
+
+      card.querySelector(".btn-select-alt").addEventListener("click", () => {
+        if (onSelectAlternative) onSelectAlternative(cleanPart);
+        this.close();
+      });
+
+      wrapEl.appendChild(card);
+    });
+
+    container.appendChild(wrapEl);
+    this.open("alternatives-modal");
+  },
+
+  /**
+   * Opens the Evaluation Diagnostic Report Modal.
+   * @param {Object} evalData - The evaluation payload from qualityEvaluator or pipeline
+   * @param {Function} [onApply] - Callback when user clicks 'Apply Improvements'
+   */
+  openEvaluation(evalData, onApply) {
+    const lang = this.getLang();
+    const t = this.t[lang];
+    const container = document.getElementById("evaluation-modal-body");
+    const btnApply = document.getElementById("btn-apply-eval-improvements");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const score = evalData.score || 0;
+    const ratingText = evalData.rating ? (evalData.rating[lang] || evalData.rating.en) : "";
+
+    const heroEl = document.createElement("div");
+    heroEl.className = "eval-score-hero";
+    heroEl.innerHTML = `
+      <div>
+        <h4 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">
+          ${lang === "ar" ? "النتيجة التقديرية لجودة البرومبت" : "Overall Prompt Quality Score"}
+        </h4>
+        <span style="font-size: 0.8125rem; color: var(--text-secondary);">
+          ${lang === "ar" ? "تقييم تحليلي عبر 6 أبعاد هندسية مع معايير قبول واضحة" : "Evaluated across 6 calibrated engineering dimensions with verification criteria"}
+        </span>
+      </div>
+      <div style="text-align: end;">
+        <span class="eval-score-huge">${score}%</span>
+        <span style="display: block; font-size: 0.8125rem; font-weight: 600; color: var(--accent-primary);">${ratingText}</span>
+      </div>
+    `;
+
+    const gridEl = document.createElement("div");
+    gridEl.className = "eval-grid";
+
+    // Strengths Box
+    const strengthsBox = document.createElement("div");
+    strengthsBox.className = "eval-box";
+    const strengthsList = (evalData.strengths || []).map((s) => `<li>${this._escapeHtml(s[lang] || s.en || s)}</li>`).join("") || `<li>${lang === "ar" ? "لا توجد نقاط قوة كافية محددة بعد." : "No explicit strengths detected yet."}</li>`;
+    strengthsBox.innerHTML = `
+      <div class="eval-box-title green">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>${lang === "ar" ? "نقاط القوة المحددة" : "Identified Strengths"}</span>
+      </div>
+      <ul class="eval-list">${strengthsList}</ul>
+    `;
+
+    // Weaknesses Box
+    const weaknessesBox = document.createElement("div");
+    weaknessesBox.className = "eval-box";
+    const weaknessesList = (evalData.weaknesses || []).map((w) => `<li>${this._escapeHtml(w[lang] || w.en || w)}</li>`).join("") || `<li>${lang === "ar" ? "لا توجد عيوب جوهرية ظاهرة." : "No critical weaknesses identified."}</li>`;
+    weaknessesBox.innerHTML = `
+      <div class="eval-box-title amber">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>${lang === "ar" ? "نقاط الضعف والمعلومات المفقودة" : "Weaknesses & Missing Context"}</span>
+      </div>
+      <ul class="eval-list">${weaknessesList}</ul>
+    `;
+
+    gridEl.appendChild(strengthsBox);
+    gridEl.appendChild(weaknessesBox);
+
+    // Concrete Suggestions Box
+    const suggestionsBox = document.createElement("div");
+    suggestionsBox.className = "eval-box";
+    suggestionsBox.style.marginTop = "1rem";
+    const suggestionsList = (evalData.suggestions || []).map((s) => `<li>${this._escapeHtml(s[lang] || s.en || s)}</li>`).join("") || `<li>${lang === "ar" ? "البرومبت جاهز للاستخدام عالي الجودة." : "Prompt is ready for production use."}</li>`;
+    suggestionsBox.innerHTML = `
+      <div class="eval-box-title" style="color: var(--accent-primary);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg>
+        <span>${lang === "ar" ? "خطة التوصيات العملية للتحسين الفوري" : "Actionable Improvement Roadmap"}</span>
+      </div>
+      <ul class="eval-list">${suggestionsList}</ul>
+    `;
+
+    container.appendChild(heroEl);
+    container.appendChild(gridEl);
+    container.appendChild(suggestionsBox);
+
+    if (btnApply) {
+      btnApply.onclick = () => {
+        this.close();
+        if (onApply) onApply();
+      };
+    }
+
+    this.open("evaluation-modal");
+  },
+
   _escapeHtml(text) {
+    if (!text) return "";
     const div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
   }
 };
+

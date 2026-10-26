@@ -4,19 +4,18 @@
 
 ![Prompt Generator Banner](./docs/images/homepage.png)
 
-**A lightweight, privacy-first prompt generator and enhancer that helps users create, improve, rewrite, and structure prompts locally in the browser — without AI APIs, backend services, accounts, or external processing.**
+**A professional AI-powered prompt engineering workspace and companion Chrome Extension. Transforms vague ideas into precise, structured, model-adapted prompts using real AI model inference, multi-provider abstraction, dynamic model discovery, and calibrated quality diagnostics.**
 
-*محرك هندسة برومبتات ذكي ومستقل يعمل محلياً 100% داخل المتصفح، مع إضافة متصفح Chrome متكاملة لإعادة صياغة وتحسين الأوامر في أي موقع بدون خوادم خارجية وبدون أي AI API.*
+*بيئة عمل متقدمة لهندسة وصناعة البرومبتات المدعومة بالذكاء الاصطناعي الحقيقي وإضافة Chrome متكاملة — لتحويل الأفكار والطلبات البسيطة إلى برومبتات احترافية، دقيقة، ومتوافقة مع مختلف النماذج، مع نظام تقييم موضوعي ومحرك احتياطي محلي 100%.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Manifest V3](https://img.shields.io/badge/Chrome%20Extension-Manifest%20V3-brightgreen.svg)](extension/manifest.json)
-[![Offline Ready](https://img.shields.io/badge/Offline-100%25%20Ready-success.svg)](service-worker.js)
-[![Zero External APIs](https://img.shields.io/badge/AI%20APIs-Zero%20(100%25%20Local)-blueviolet.svg)](#privacy-guarantee)
-[![CI Tests](https://img.shields.io/badge/Tests-Passing-brightgreen.svg)](tests/engine.test.js)
-[![Built by](https://img.shields.io/badge/Developer-Mohammad%20Abu%20Khashreef-orange.svg)](https://github.com/mokashreef)
-[![Ecosystem](https://img.shields.io/badge/Ecosystem-Code%20Elta6ur-blue.svg)](https://github.com/mokashreef)
+[![AI Providers](https://img.shields.io/badge/AI%20Providers-Pollinations%20%7C%20Groq%20%7C%20Ollama%20%7C%20OpenRouter-purple.svg)](ARCHITECTURE.md)
+[![Automated Tests](https://img.shields.io/badge/Tests-Passing%20(5%2F5%20Suites)-brightgreen.svg)](tests/runner.js)
+[![Offline Fallback](https://img.shields.io/badge/Offline-Deterministic%20Fallback-success.svg)](js/ai/DeterministicFallbackProvider.js)
+[![Developer](https://img.shields.io/badge/Developer-Mohammad%20Abu%20Khashreef-orange.svg)](https://github.com/mokashreef)
 
-[🌐 Live Demo](https://mokashreef.github.io/Prompt-Generator/) • [🧩 Chrome Extension](#chrome-extension) • [📖 العربية](#نظرة-عامة-باللغة-العربية) • [💻 Local Setup](#installation--local-development)
+[🌐 Live Demo](https://mokashreef.github.io/Prompt-Generator/) • [🧩 Chrome Extension](#chrome-extension) • [📖 Architecture](ARCHITECTURE.md) • [📖 العربية](#نظرة-عامة-باللغة-العربية) • [💻 Local Setup](#installation--local-development)
 
 <p align="center" style="margin-top: 1rem;">
   <a href="https://raw.githubusercontent.com/mokashreef/Prompt-Generator/main/prompt-generator-extension.zip" download="prompt-generator-extension.zip">
@@ -30,375 +29,266 @@
 
 ## 📋 Table of Contents / جدول المحتويات
 
-- [Project Overview](#project-overview)
+- [Why Rebuild Prompt Generator?](#why-rebuild-prompt-generator)
 - [نظرة عامة باللغة العربية](#نظرة-عامة-باللغة-العربية)
-- [Key Features](#key-features)
-- [Why Prompt Generator?](#why-prompt-generator)
-- [How It Works](#how-it-works)
-- [Core Prompt Engine](#core-prompt-engine)
-- [Supported Task Profiles](#supported-task-profiles)
+- [Core Capabilities](#core-capabilities)
+- [AI Provider Architecture & Dynamic Discovery](#ai-provider-architecture--dynamic-discovery)
+- [Transparent Provenance Guarantee](#transparent-provenance-guarantee)
+- [7 Distinct Generation Modes](#7-distinct-generation-modes)
+- [Target Platform Adaptation](#target-platform-adaptation)
+- [Calibrated Quality Evaluator](#calibrated-quality-evaluator)
+- [14 Tailored Task Profiles](#14-tailored-task-profiles)
 - [Chrome Extension (Manifest V3)](#chrome-extension)
-- [Privacy Guarantee](#privacy-guarantee)
-- [Screenshots](#screenshots)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
+- [Security & Privacy Boundaries](#security--privacy-boundaries)
+- [Testing & Quality Assurance](#testing--quality-assurance)
 - [Installation & Local Development](#installation--local-development)
-- [Chrome Extension Installation](#chrome-extension-installation)
-- [GitHub Pages Deployment](#github-pages-deployment)
-- [Roadmap](#roadmap)
+- [Deployment](#deployment)
 - [Contributing](#contributing)
 - [License](#license)
-- [Credits & Attribution](#credits--attribution)
 
 ---
 
-## 🌟 Project Overview
+## 💡 Why Rebuild Prompt Generator?
 
-**Prompt Generator** is a production-grade, 100% client-side web application and companion **Chrome Extension (Manifest V3)** that structures, improves, rewrites, and scores AI prompts based on concrete prompt engineering principles and intent heuristics.
+Early versions of Prompt Generator relied exclusively on static string concatenation templates. When a user submitted a request like `"build a website"`, the generator would output fixed boilerplate containing literal placeholders such as `[Insert Target Audience]` and `[Specify Database]`, giving an identical ~560-character output and a hardcoded 80% quality score regardless of the task domain.
 
-Most generic prompt tools either rely on paid external cloud APIs (such as OpenAI, Anthropic, or Gemini) or duplicate identical template wrappers across every task. Prompt Generator takes a radically different engineering approach:
+**The Rebuilt Prompt Generator solves this fundamentally:**
 
-1. **Zero External AI APIs:** All transformations, heuristics, and quality checks run deterministically on the client device inside the browser's JavaScript engine.
-2. **True Architectural Diversity:** Every task profile generates a fundamentally tailored structure (e.g. step-by-step verification for code debugging, scene narrative and parameters for image generation, trade-off matrices for technology comparisons).
-3. **No Hallucinated Context:** If a user provides minimal input (e.g. `"build a website"`), the engine introduces clear operational placeholders (such as `[Target Audience]` or `[Preferred Technology]`) rather than fabricating fictional facts.
-4. **Browser-Wide Extension:** Seamlessly enhance and replace prompts in-page across ChatGPT, Claude, Gemini, Notion, or any textarea/input with zero page reloads.
+| Dimension | Previous Implementation | Rebuilt Architecture |
+| :--- | :--- | :--- |
+| **Inference Engine** | Fixed string templates & bracketed placeholders | **Real AI model inference** via Pollinations, Groq, OpenRouter, or Ollama |
+| **Failover Safety** | None (silent failure or crash) | **Automated graceful fallback** to an offline deterministic synthesis engine |
+| **Output Provenance** | Unclear origin | **Explicit badge** indicating Real AI (`provider + model`) vs Deterministic Fallback |
+| **Generation Modes** | Single fixed structure | **7 dedicated modes** (Quick, Detailed, Professional, Expert, Improve, Alternatives, Evaluate) |
+| **Target Platforms** | Generic text | **Model-tailored syntax** (Markdown for ChatGPT, XML tags for Claude, JSON for Gemini, parameters for Midjourney) |
+| **Quality Evaluation** | Hardcoded ~80% score | **Calibrated 6-dimension rubric** (0–100%) with domain sensitivity & anti-pattern penalties |
+| **Domain Coverage** | 10 basic categories | **14 specialized task profiles** with domain-specific inputs & constraints |
+| **Credential Security** | N/A | **Zero-server architecture**: user keys stored strictly in client `localStorage` |
 
 ---
 
 ## 🌍 نظرة عامة باللغة العربية
 
-**Prompt Generator** هي أداة ويب احترافية ومستقلة، يرافقها **إضافة متصفح Chrome (Manifest V3)**، تهدف إلى مساعدة المطورين وصناع المحتوى والباحثين على تحسين، إعادة صياغة، وهندسة البرومبتات لتكون موجهة وعالية الجودة دون الاعتماد على أي واجهات برمجية خارجية (APIs).
+**Prompt Generator** هو تطبيق ويب متطور ومستقل، مدعوم بإضافة متصفح Chrome متكاملة (Manifest V3)، يهدف إلى تحويل الأوامر والأفكار البسيطة أو المقتضبة إلى برومبتات مهندسة بدقة فائقة عبر **استدلال الذكاء الاصطناعي الفعلي (Real AI Inference)**.
 
-### المبادئ الصارمة للمشروع:
-* **معالجة محلية بالكامل (100% Client-Side):** لا تتصل الأداة بأي خوادم خارجية أو خدمات مثل OpenAI أو Claude أو Gemini. بياناتك لا تغادر جهازك إطلاقاً.
-* **بدون تسجيل دخول أو مفاتيح اشتراك:** جاهزة للاستخدام الفوري بدون حسابات وبدون قيود.
-* **محرك هندسي موحد:** تشترك إضافة المتصفح مع الموقع الإلكتروني في نفس المحرك البرمجي وقواعد التشخيص وهياكل المهام.
-* **لا اختلاق للسياق:** الأداة لا تفترض معلومات غير موجودة؛ بل تضع محددات وPlaceholders واضحة مثل `[الجمهور المستهدف]` أو `[الميزانية]` ليركز المستخدم عليها.
-
----
-
-## ⚡ Key Features
-
-- **🎯 Intent Detection Engine:** Automatically identifies user intent (Create, Analyze, Teach, Compare, Rewrite, Research) and calibrates output parameters.
-- **🧱 10 Bespoke Task Profiles:** From general tasks to full-stack code debugging, competitive business strategy, Midjourney visual prompts, and data analysis.
-- **📊 Objective Quality Scoring (0–100%):** Evaluates prompts against objective criteria: goal specificity, situational context, deliverables, guardrails, and structure.
-- **🧩 Manifest V3 Chrome Extension:**
-  - **Context Menu:** Right-click selected text in any page $\rightarrow$ `Improve Prompt / تحسين البرومبت`.
-  - **Side Panel & Popup:** Side-by-side prompt editor for comfortable long-form editing.
-  - **In-Page Text Replacement:** Safely replaces text in `textarea`, `input`, and reactive `contenteditable` editors (ChatGPT/Claude/Gemini) without DOM corruption.
-  - **Visual Diff Viewer:** Highlights added, deleted, and modified lines and words in real time.
-  - **11 Independent Actions:** `Improve`, `Rewrite`, `Make Specific`, `Make Detailed`, `Make Concise`, `Fix Structure`, `Add Constraints`, `Output Format`, `Professional`, `Simplify`, and `Translate`.
-- **🌙 Sleek Developer UI:** Minimalist developer tool aesthetic with Dark Mode, Light Mode, and complete Arabic (RTL) & English (LTR) localization.
-- **💾 100% Local Storage:** Bookmark favorite prompts and browse generation history via browser storage (`localStorage` & `chrome.storage.local`).
-- **📦 Direct ZIP Download:** Download the unpacked extension package directly from the web interface.
+### الركائز الأساسية للنظام المُعاد بناؤه:
+1. **استدلال حقيقي بالذكاء الاصطناعي:** يتصل النظام بنماذج ذكاء اصطناعي رائدة عبر مزودات متعددة (Pollinations AI، واجهات OpenAI المتوافقة مثل Groq وOpenRouter، وخوادم Ollama المحلية).
+2. **محرك احتياطي ذكي ومحلي (Fail-Safe Deterministic Fallback):** في حال انقطاع الاتصال أو نفاد الحصص المجانية، يتحول النظام تلقائياً إلى محرك محلي اصطناعي يُنتج برومبتات متخصصة ومبنية على قواعد هندسة البرومبتات دون ترك فراغات ساذجة (`[حدد التقنية]`).
+3. **شفافية تامة لمصدر التوليد (Provenance Guarantee):** لا ندعي أبداً أن مخرجات القوالب أو المحرك الاحتياطي هي ذكاء اصطناعي؛ حيث يظهر وسم واضح يُبين ما إذا كان البرومبت ناتجاً عن نموذج ذكاء اصطناعي (مع ذكر المزود واسم النموذج) أو عن المحرك الاحتياطي.
+4. **7 أنماط توليد مختلفة:** من البرومبت السريع المباشر، إلى البرومبت المفصل، البرومبت الاحترافي، وضع الخبير والأنظمة المعقدة، وضع تحسين البرومبتات، توليد 3 بدائل إستراتيجية، والتقييم التشخيصي.
+5. **خصوصية وأمان 100%:** جميع المفاتيح والبيانات تُحفظ حصرياً داخل متصفح المستخدم (`localStorage`) ولا تمر بأي خادم وسيط.
 
 ---
 
-## 💡 Why Prompt Generator?
+## ⚡ Core Capabilities
 
-| Feature | Standard "AI Wrappers" | Prompt Generator |
+- **🧠 Real AI Generation Pipeline:** Analyzes the core objective, detects implicit requirements, frames contextual instructions, and produces production-grade prompts.
+- **🔌 Multi-Provider Abstraction:** Seamless switching between Pollinations AI, OpenAI-compatible APIs (Groq, OpenRouter, DeepSeek, OpenAI), and local Ollama instances.
+- **📡 Dynamic Model Discovery:** Automatically queries supported provider discovery endpoints, filters by text modality, checks health metrics, and populates selectable models dynamically.
+- **⚖️ Calibrated Quality Evaluator:** Assesses prompts across 6 weighted dimensions (Objective, Context, Specificity, Constraints, Format, Testability) with domain-specific criteria and anti-pattern penalties.
+- **🔄 3 Structural Alternatives:** Generates 3 fundamentally distinct prompt strategies (e.g., Strategic, Technical, and Minimalist) for the same core idea.
+- **🪄 Improve Existing Prompts:** Takes raw user prompts, diagnoses structural gaps, and outputs an upgraded, battle-tested version.
+- **🌐 Bilingual Precision:** Native support for Arabic (RTL) and English (LTR), preserving Latin code tokens, technical identifiers, and markdown formatting.
+- **💾 Local History & Bookmarks:** Save, search, filter, and export prompts (TXT, Markdown, JSON) without requiring an account or cloud database.
+
+---
+
+## 🔌 AI Provider Architecture & Dynamic Discovery
+
+Prompt Generator implements an extensible provider interface (`BaseProvider`) supporting four operational modes:
+
+```
++-------------------------------------------------------------------------+
+|                           ProviderManager                               |
++-------------------+-------------------+-----------------+---------------+
+| PollinationsAI    | OpenAICompatible  | OllamaProvider  | Deterministic |
+| (Cloud / Free IP) | (Groq/OpenRouter) | (Local Offline) | (Rule Engine) |
++-------------------+-------------------+-----------------+---------------+
+```
+
+1. **Pollinations AI (`PollinationsProvider`)**:
+   - Official API: `https://gen.pollinations.ai/v1/chat/completions`.
+   - Dynamic catalog fetched from `https://gen.pollinations.ai/models`.
+   - Modality filtering ensures only text/chat models are presented (excluding image-only models).
+   - Models cached in `localStorage` for 1 hour to prevent excessive traffic.
+   - Transparently catches HTTP 401 anonymous quota exhaustion and triggers fallback.
+2. **OpenAI-Compatible (`OpenAICompatibleProvider`)**:
+   - Supports **Groq** (`api.groq.com/openai/v1`) with free high-throughput LLaMA models.
+   - Supports **OpenRouter** (`openrouter.ai/api/v1`) with free community open-weight models.
+   - Supports **DeepSeek** (`api.deepseek.com/v1`) and official OpenAI endpoints.
+3. **Local Ollama (`OllamaProvider`)**:
+   - Discovers installed local models via `http://localhost:11434/api/tags`.
+   - 100% private and offline execution on the user's local hardware.
+4. **Deterministic Fallback (`DeterministicFallbackProvider`)**:
+   - Rule-based offline synthesis engine.
+   - Eliminates useless bracketed templates, producing structurally rich prompts tailored to the task category.
+
+---
+
+## 🏷️ Transparent Provenance Guarantee
+
+We uphold strict engineering integrity: **a template or rule-based output is NEVER labeled as AI-generated.**
+
+Every generated prompt displays an unambiguous provenance badge in the UI:
+- 🟢 **Real AI**: Displays `Provider: Pollinations AI • Model: openai` (or Groq, Ollama, etc.).
+- 🟡 **Deterministic Fallback**: Displays `Mode: Deterministic Fallback • Offline Rule Engine`.
+
+---
+
+## 🎯 7 Distinct Generation Modes
+
+| Mode | Objective | Output Character & Depth |
 | :--- | :--- | :--- |
-| **API Costs & Keys** | Requires paid OpenAI / Claude API keys | **Zero Cost • No API Keys** |
-| **Data Privacy** | Sends your prompts to third-party cloud servers | **100% Private (Never leaves your device)** |
-| **Offline Operation** | Fails completely without active internet | **Fully functional offline (PWA & Local Engine)** |
-| **Extension Support** | Bulky SaaS plugins with heavy tracking | **Lightweight Manifest V3 Chrome Extension** |
-| **Hallucination** | Often fabricates fictional assumptions | **Maintains truth with explicit placeholders** |
-| **Speed** | 2–5 seconds cloud latency | **Instantaneous (< 10ms local V8 processing)** |
+| **Quick Prompt** | Concise, actionable directive for rapid execution | Crisp task instruction with immediate input variables. |
+| **Detailed Prompt** | Thorough prompt with context, constraints, and format | Full operational framing, role definition, and output schema. |
+| **Professional** | Enterprise specification with quality criteria | Structured with deliverables, edge cases, and compliance standards. |
+| **Expert / Complex** | Multi-phase architecture for large engineering tasks | Phased execution pipeline, verification milestones, and quality gates. |
+| **Improve Existing** | Refactor and elevate a raw user prompt | Diagnoses weaknesses and produces an optimized rewrite. |
+| **Generate Alternatives** | 3 distinct structural perspectives on one goal | Strategic, Technical, and Minimalist prompt variants. |
+| **Prompt Evaluation** | In-depth diagnostic score and improvement advice | Calibrated 6-dimension rubric with identified strengths and gaps. |
 
 ---
 
-## ⚙️ How It Works
+## 📐 Target Platform Adaptation
 
-```mermaid
-graph LR
-    A[Raw User Input] --> B[Intent Detector]
-    B --> C[Task Profile Schema]
-    C --> D[Action Transformer / Engine]
-    D --> E[Quality Evaluator]
-    D --> F[Formatted AI Prompt]
-    E --> G[Quality Score: 0-100%]
+The generation pipeline automatically adapts prompt syntax to the selected target AI:
+- **ChatGPT**: Hierarchical Markdown with clear section dividers and step-by-step instructions.
+- **Claude**: XML tag delineation (`<context>`, `<task>`, `<constraints>`, `<deliverables>`) for optimal Sonnet/Opus comprehension.
+- **Gemini**: Strongly-typed structured schemas, grounding cues, and multimodal context slots.
+- **DeepSeek**: Architectural chain-of-thought directives and rigorous verification constraints.
+- **Midjourney**: Comma-separated visual styling tags, lighting, composition ratios (`--ar 16:9`), and negative exclusions (`--no blur`).
+- **Cursor**: Concise file-level implementation instructions and unit testing rules.
+
+---
+
+## 📊 Calibrated Quality Evaluator
+
+The quality evaluator scores prompts from **0 to 100%** using a calibrated, task-aware rubric:
+
+```
+Total Score (100%) = 
+  Objective Clarity (20%) + Context Sufficiency (15%) + Specificity (20%)
+  + Constraints (15%) + Output Format (15%) + Testability & Quality (15%)
+  - Anti-Pattern Penalties (up to -25% for unfulfilled bracket placeholders)
 ```
 
-1. **Input Analysis:** The system cleans the input and identifies primary keywords and language direction.
-2. **Intent Classification:** Classifies the intent into one of six core categories: `create`, `analyze`, `teach`, `compare`, `rewrite`, or `research`.
-3. **Profile Adaptation:** Injects domain-specific guardrails, instructions, and standard placeholders.
-4. **Action Transformation:** Applies the selected action logic (e.g., adding negative constraints, structuring markdown headers, condensing instructions).
-5. **Quality Scoring:** Analyzes structural metrics (goal definition, context availability, format criteria, boundaries) to calculate an objective score.
+- **Domain-Specific Criteria**: An image generation prompt is evaluated on lighting, visual composition, and rendering style rather than unit testing or database constraints.
+- **Actionable Diagnostics**: Returns itemized strengths, weaknesses, missing information, and concrete suggestions for immediate improvement.
 
 ---
 
-## 🧠 Core Prompt Engine
+## 🧱 14 Tailored Task Profiles
 
-The engine is located in [`js/engine/`](file:///d:/my%20projects/Prompt%20Generator/js/engine/) and mirrored in [`extension/shared/engine/`](file:///d:/my%20projects/Prompt%20Generator/extension/shared/engine/):
+Each profile specifies dedicated fields, domain constraints, and structure:
 
-- [`promptEngine.js`](file:///d:/my%20projects/Prompt%20Generator/js/engine/promptEngine.js): Core builder supporting structured profile forms and adaptive general prompts.
-- [`actionTransformer.js`](file:///d:/my%20projects/Prompt%20Generator/js/engine/actionTransformer.js): Coordinates the 11 specialized transformation actions.
-- [`intentDetector.js`](file:///d:/my%20projects/Prompt%20Generator/js/engine/intentDetector.js): Deterministic regex heuristics for intent diagnosis.
-- [`qualityEvaluator.js`](file:///d:/my%20projects/Prompt%20Generator/js/engine/qualityEvaluator.js): Multi-point quality evaluation criteria.
-- [`taskProfiles.js`](file:///d:/my%20projects/Prompt%20Generator/js/data/taskProfiles.js): Definitions of 10 bespoke task categories and fields.
-
----
-
-## 🎯 Supported Task Profiles
-
-1. **General Prompt (البرومبت العام):** Adaptable baseline for any open-ended objective.
-2. **Code & Development (برمجة وتطوير):** Focuses on code state, error logs, runtime environment, and minimal diffs.
-3. **Writing & Content (كتابة ومحتوى):** Tailored for tone of voice, readership, format, and structure.
-4. **Research & Analysis (بحث وتحليل):** Demands sources, analytical methodology, and counter-perspectives.
-5. **Business Strategy (استراتيجية وأعمال):** Incorporates SWOT frameworks, KPIs, and market viability.
-6. **AI Image Generation (توليد الصور):** Calibrated for Midjourney, FLUX, and DALL-E (lighting, aspect ratio, camera shot).
-7. **Marketing & Copywriting (تسويق وإعلانات):** Focuses on value proposition, target persona, and Call to Action.
-8. **Education & Learning (تعليم وشرح):** Emphasizes progressive pedagogical steps and practical exercises.
-9. **Data & Analytics (بيانات وتحليل):** Structures data schemas, cleaning steps, and visualization tools.
-10. **Video & Audio (فيديو وسيناريو):** Structures timestamps, visual b-roll, audio cues, and voiceover pacing.
+1. **General / Adaptive** — Universal intent-driven framing.
+2. **Software Development** — Architecture, tech stack, error handling, and API specs.
+3. **Debugging & Code Review** — Bug reproduction, root-cause isolation, and unit test fixes.
+4. **Architecture & System Design** — Non-functional requirements, scaling, and trade-off matrices.
+5. **Writing & Content** — Tone, audience persona, narrative structure, and SEO keywords.
+6. **Marketing & Conversion** — Customer avatar, value proposition, and CTA hooks.
+7. **Research & Analysis** — Methodology, scholarly rigor, citations, and critical counterarguments.
+8. **Business Strategy** — P&L impact, risk assessment, and operational roadmaps.
+9. **Education & Tutoring** — Pedagogy, progressive disclosure, and interactive knowledge checks.
+10. **Data Analysis** — Statistical distributions, anomaly detection, and visualization schemas.
+11. **Image Generation** — Midjourney/SD visual styles, lighting, camera angles, and aspect ratios.
+12. **Video Generation** — Pacing, storyboards, camera motion, and audio cues.
+13. **Automation & Workflows** — Trigger events, API webhooks, edge-case retries, and rate limits.
+14. **Translation & Localization** — Cultural nuance, tone adaptation, and glossary enforcement.
 
 ---
 
-## 🧩 Chrome Extension
+## 🧩 Chrome Extension (Manifest V3)
 
-The Chrome Extension allows prompt engineering without leaving your active tab.
-
-![Chrome Extension Modal](./docs/images/extension-modal.png)
-
-### ⬇️ Direct Download / تنزيل الإضافة مباشرة
-
-<p align="center">
-  <a href="https://raw.githubusercontent.com/mokashreef/Prompt-Generator/main/prompt-generator-extension.zip" download="prompt-generator-extension.zip">
-    <img src="https://img.shields.io/badge/⬇%EF%B8%8F%20تحميل%20الإضافة%20مباشرة%20(ZIP)-Download%20Extension%20(~57%20KB)-10b981?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Download Chrome Extension (ZIP)" height="40">
-  </a>
-</p>
-
-* **رابط التنزيل المباشر (Direct Download):** [prompt-generator-extension.zip](https://raw.githubusercontent.com/mokashreef/Prompt-Generator/main/prompt-generator-extension.zip)
-* **رابط بديل عبر موقع المشروع:** [mokashreef.github.io/Prompt-Generator/prompt-generator-extension.zip](https://mokashreef.github.io/Prompt-Generator/prompt-generator-extension.zip)
-
-### Capabilities:
-- **Context Menu:** Highlight text on ChatGPT, Claude, or any website, right-click, and select **"Improve Prompt / تحسين البرومبت"**.
-- **Chrome Side Panel:** Opens Chrome's native side panel with an **Original vs Improved** comparison editor.
-- **In-Page Replace:** Safely replaces your highlighted prompt with the improved version directly inside modern web rich-text editors.
-- **Diff View:** Toggle **"Show Changes"** to see an inline visual diff of all modifications.
-- **Keyboard Shortcut:** Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> (or <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> on macOS).
+The project includes a companion Manifest V3 browser extension sharing the core engine:
+- **In-Page Text Replacement**: Works inside textareas, inputs, and rich-text editors (ChatGPT, Claude, Gemini, Notion).
+- **Side Panel & Popup**: Complete prompt engineering workspace accessible from any browser tab.
+- **Visual Diff Viewer**: Side-by-side visual diff highlighting additions and modifications.
+- **Direct ZIP Package**: Built and packaged in the repository for one-click download.
 
 ---
 
-## 🔒 Privacy Guarantee
+## 🔒 Security & Privacy Boundaries
 
-* **Zero Network Requests:** Your prompts are never transmitted across the network.
-* **No Account Required:** No authentication, cookies, or user tracking.
-* **No AI Cloud API Keys:** No OpenAI, Anthropic, or Google API keys required or accepted.
-* **Manifest V3 Compliant:** Full adherence to Chrome Web Store security and Content Security Policy (CSP) standards.
-
----
-
-## 📸 Screenshots
-
-| Homepage (Dark Mode - Arabic) | English LTR Interface |
-| :---: | :---: |
-| ![Homepage](./docs/images/homepage.png) | ![English LTR](./docs/images/english-ltr.png) |
-
-| Extension Modal & ZIP Download | Light Theme Mode |
-| :---: | :---: |
-| ![Extension Modal](./docs/images/extension-modal.png) | ![Light Theme](./docs/images/light-mode.png) |
+- **Zero-Server Architecture**: The application is 100% static client-side JavaScript. There is no intermediary backend database or logging server.
+- **Local Key Storage**: API keys entered into the AI Settings modal are stored strictly in `window.localStorage` and used directly in HTTPS fetch requests to the designated provider.
+- **No Secret Commits**: `.env.example` documents setup without including secrets. Automated tests and builds contain zero hardcoded credentials.
 
 ---
 
-## 💻 Tech Stack
+## 🧪 Testing & Quality Assurance
 
-- **Frontend Core:** Vanilla HTML5, Vanilla JavaScript (ES Modules), Vanilla CSS.
-- **Styling:** Custom CSS design system with CSS custom properties (`--bg-surface`, `--accent-primary`), responsive fluid layout, and CSS Grid/Flexbox.
-- **PWA & Offline:** Service Worker API with Cache-First asset caching.
-- **Extension:** Chrome Extensions Manifest V3 (`service_worker`, `side_panel`, `content_scripts`, `contextMenus`, `commands`, `storage`).
-- **Testing:** Node.js native test runner (`node tests/engine.test.js`).
+Prompt Generator includes a comprehensive automated test suite covering all functional and architectural requirements:
 
----
-
-## 📁 Project Structure
-
-```text
-prompt-generator/
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug_report.md
-│   │   └── feature_request.md
-│   ├── workflows/
-│   │   └── ci.yml
-│   └── PULL_REQUEST_TEMPLATE.md
-├── assets/
-│   └── icons/
-│       ├── favicon.svg
-│       ├── icon-192.png
-│       └── icon-512.png
-├── css/
-│   ├── main.css
-│   ├── responsive.css
-│   └── themes.css
-├── docs/
-│   └── images/
-│       ├── homepage.png
-│       ├── extension-modal.png
-│       ├── english-ltr.png
-│       └── light-mode.png
-├── extension/
-│   ├── assets/
-│   │   └── icons/
-│   ├── background/
-│   │   └── service-worker.js
-│   ├── content/
-│   │   └── content.js
-│   ├── popup/
-│   │   ├── popup.html
-│   │   ├── popup.css
-│   │   └── popup.js
-│   ├── shared/
-│   │   ├── diff.js
-│   │   ├── i18n.js
-│   │   └── engine/
-│   │       ├── actionTransformer.js
-│   │       ├── intentDetector.js
-│   │       ├── promptEngine.js
-│   │       ├── qualityEvaluator.js
-│   │       └── taskProfiles.js
-│   ├── sidepanel/
-│   │   ├── sidepanel.html
-│   │   ├── sidepanel.css
-│   │   └── sidepanel.js
-│   ├── manifest.json
-│   ├── PRIVACY.md
-│   └── README.md
-├── js/
-│   ├── data/
-│   │   ├── examples.js
-│   │   ├── taskProfiles.js
-│   │   └── translations.js
-│   ├── engine/
-│   │   ├── actionTransformer.js
-│   │   ├── intentDetector.js
-│   │   ├── promptEngine.js
-│   │   ├── qualityEvaluator.js
-│   │   └── storage.js
-│   ├── ui/
-│   │   ├── formRenderer.js
-│   │   ├── modals.js
-│   │   └── toast.js
-│   └── app.js
-├── tests/
-│   └── engine.test.js
-├── .gitignore
-├── CHANGELOG.md
-├── CODE_OF_CONDUCT.md
-├── CONTRIBUTING.md
-├── index.html
-├── manifest.json
-├── package.json
-├── prompt-generator-extension.zip
-├── robots.txt
-├── SECURITY.md
-├── service-worker.js
-└── sitemap.xml
-```
-
----
-
-## 🚀 Installation & Local Development
-
-### Prerequisites
-- Node.js (version 18 or newer recommended for running tests).
-- Any standard web browser (Chrome 116+ recommended for full Side Panel extension support).
-
-### 1. Clone the Repository
 ```bash
-git clone https://github.com/mokashreef/Prompt-Generator.git
-cd Prompt-Generator
-```
-
-### 2. Run Automated Tests
-```bash
+# Run the complete test suite
 npm test
 ```
 
-### 3. Start a Local Web Server
-Since the project uses modern ES Modules, it requires an HTTP server rather than opening `file:///` directly:
+### Verified Test Suites:
+1. **AI Providers & Failover (`tests/providers.test.js`)**: 27 passing tests covering typed error hierarchies, dynamic model discovery, modality filtering, custom OpenAI-compatible endpoints, Ollama daemon communication, and automated fallback.
+2. **AI Pipeline & Generation Modes (`tests/pipeline.test.js`)**: 36 passing tests verifying all 7 generation modes, target platform adaptations, Arabic token preservation, and conversational filler stripping.
+3. **Quality Evaluator & Rubric (`tests/evaluator.test.js`)**: 9 passing tests validating multi-dimensional scoring weights, placeholder penalties, and domain calibration (visual vs code).
+4. **Quality Benchmark Suite (`tests/quality_suite.test.js`)**: 15 passing tests running realistic, diverse tasks across 6 distinct domains (software development, debugging, marketing, cinematic image generation, strategic research, data analysis) and verifying structural dissimilarity.
+5. **Legacy Baseline Regression (`tests/engine.test.js`)**: Backward-compatibility regression suite.
+
+**Test Results: 100% PASSING across all 5 suites.**
+
+---
+
+## 💻 Installation & Local Development
+
+### Prerequisites
+- Node.js 18+ (optional, for local development server and test runner)
+- Modern web browser (Chrome, Edge, Firefox, Brave, Safari)
+
+### Setup Instructions
 
 ```bash
-# Option A: Using NPM script
+# Clone the repository
+git clone https://github.com/mokashreef/Prompt-Generator.git
+cd Prompt-Generator
+
+# Checkout the rebuild branch
+git checkout rebuild/ai-prompt-generator
+
+# Run automated tests
+npm test
+
+# Start local development server
 npm run dev
-
-# Option B: Using Python built-in server
-python -m http.server 8080
-
-# Option C: Using npx serve
-npx serve -l 8080 .
+# Application will be accessible at http://localhost:8080
 ```
 
-Navigate to `http://localhost:8080/index.html` in your browser.
-
 ---
 
-## 🧩 Chrome Extension Installation
+## 🚀 Deployment
 
-You can load the extension directly into Google Chrome in seconds:
-
-1. Open **Google Chrome** and navigate to:
-   ```text
-   chrome://extensions
-   ```
-2. Enable **Developer mode** (toggle switch in the top-right corner).
-3. Click the **Load unpacked** button in the top-left toolbar.
-4. Select the `extension` folder located inside the repository:
-   ```text
-   /path/to/prompt-generator/extension
-   ```
-5. The extension is now installed! Pin it to your Chrome toolbar for rapid access.
-
-*(Alternatively, you can download `prompt-generator-extension.zip` directly from the website UI, extract it, and select the extracted folder).*
-
----
-
-## 🌐 GitHub Pages Deployment
-
-The web application is pure static HTML/CSS/JS with zero build steps or bundlers required, making GitHub Pages deployment seamless:
-
-1. Push your repository to GitHub (`main` branch).
-2. Go to repository **Settings** $\rightarrow$ **Pages**.
-3. Under **Build and deployment**:
-   - **Source:** Deploy from a branch
-   - **Branch:** `main`
-   - **Folder:** `/ (root)`
-4. Click **Save**. Your site will be live at `https://<username>.github.io/<repository-name>/`.
-
----
-
-## 🗺️ Roadmap
-
-- [x] Intent diagnosis engine with 6 classification states.
-- [x] 10 specialized task profiles.
-- [x] Objective Quality Score calculator (0–100%).
-- [x] Manifest V3 Chrome Extension with Side Panel and Popup.
-- [x] Universal safe in-page replacement across rich-text editors.
-- [x] 11 transformation actions and visual diff viewer.
-- [x] Direct ZIP package download from website.
-- [ ] Customizable user-defined prompt profile templates.
-- [ ] Export prompt templates as reusable JSON recipes.
+The project can be deployed instantly to any static hosting service:
+- **GitHub Pages**: Automatically deployed from `main` or `docs/`.
+- **Vercel / Netlify / Cloudflare Pages**: Deploy with zero build step (serve root directory).
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please review [`CONTRIBUTING.md`](./CONTRIBUTING.md) and [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) before opening a pull request.
+Contributions are warmly welcomed! Please read our [ARCHITECTURE.md](ARCHITECTURE.md) to understand provider interfaces and generation pipelines before submitting Pull Requests.
+
+1. Fork the repository.
+2. Create your feature branch (`git checkout -b feat/my-new-feature`).
+3. Commit your changes following conventional commits (`git commit -m 'feat: add Claude 3.7 Sonnet preset'`).
+4. Run `npm test` to verify all tests pass.
+5. Push to the branch (`git push origin feat/my-new-feature`).
+6. Open a Pull Request.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.  
-See the [`LICENSE`](./LICENSE) file for more information.
+Distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.
 
 ---
 
-## 👨‍💻 Credits & Attribution
+## 👨‍💻 Developer & Attribution
 
-* **Project:** Prompt Generator
-* **Designed & Developed by:** **[Mohammad Abu Khashreef](https://github.com/mokashreef)** (محمد أبو خشريف)
-* **Organization / Ecosystem:** Part of the **Code Elta6ur** (منظومة كود التطور) ecosystem.
-
-> *Designed and developed by Mohammad Abu Khashreef as part of the Code Elta6ur ecosystem.*  
-> *تمت برمجة وتصميم المشروع بواسطة محمد أبو خشريف، وهو جزء من منظومة كود التطور.*
+Developed by **[Mohammad Abu Khashreef](https://github.com/mokashreef)**. Part of the **Code Elta6ur** ecosystem.

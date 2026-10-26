@@ -21,6 +21,7 @@ yarn-error.log*
 # IDE & Editor Configurations
 .idea/
 .vscode/
+.agents/
 *.sublime-project
 *.sublime-workspace
 
