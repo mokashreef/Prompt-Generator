@@ -148,11 +148,11 @@ export class OpenAICompatibleProvider extends BaseProvider {
 
     try {
       const endpoint = `${this.baseUrl}/chat/completions`;
-      const response = await fetch(endpoint, {
+      const response = await this.fetchWithTimeout(endpoint, {
         method: "POST",
         headers,
         body: JSON.stringify(payload),
-        signal
+        signal: options.signal
       });
 
       if (!response.ok) {

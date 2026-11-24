@@ -70,11 +70,11 @@ export class PollinationsProvider extends BaseProvider {
     };
 
     try {
-      const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
+      const response = await this.fetchWithTimeout(`${this.baseUrl}/v1/chat/completions`, {
         method: "POST",
         headers,
         body: JSON.stringify(payload),
-        signal
+        signal: options.signal
       });
 
       if (!response.ok) {

@@ -101,10 +101,12 @@ export class DeterministicFallbackProvider extends BaseProvider {
     // Check category explicitly from options, falling back to heuristics
     let category = options.category || "general";
     if (!options.category || category === "general") {
-      if (/coding|software|code|laravel|react|python|api|bug|debug/i.test(userText)) category = "coding";
-      else if (/image|photo|midjourney|visual|portrait|cinematic/i.test(userText)) category = "image";
-      else if (/marketing|seo|sales|campaign|ad|copy/i.test(userText)) category = "marketing";
-      else if (/research|analysis|data|study|academic/i.test(userText)) category = "research";
+      if (/Category:\s*video/i.test(userText) || /video|footage|animation|drone|camera/i.test(userText)) category = "video";
+      else if (/Category:\s*automation/i.test(userText) || /automation|workflow|webhook|pipeline|cron|trigger|stripe/i.test(userText)) category = "automation";
+      else if (/Category:\s*coding/i.test(userText) || /coding|software|code|laravel|react|python|api|bug|debug/i.test(userText)) category = "coding";
+      else if (/Category:\s*image/i.test(userText) || /image|photo|midjourney|visual|portrait|cinematic/i.test(userText)) category = "image";
+      else if (/Category:\s*marketing/i.test(userText) || /marketing|seo|sales|campaign|ad|copy/i.test(userText)) category = "marketing";
+      else if (/Category:\s*research/i.test(userText) || /research|analysis|data|study|academic/i.test(userText)) category = "research";
     }
 
     return {
@@ -211,6 +213,54 @@ ${goal}`);
       return sections.join("\n\n");
     }
 
+    if (category === "video") {
+      if (isAr) {
+        sections.push(`## سيناريو الفيديو والمشهد الإخراجي:
+${goal}`);
+        sections.push(`## مواصفات الكاميرا والإخراج السينمائي:
+- حركة الكاميرا (Camera Choreography): زوايا ديناميكية وتتبع سلس للحركة وتدرج بصري (Dynamic camera tracking shot, continuous motion).
+- الإضاءة والجو العام (Lighting & Atmosphere): إضاءة سينمائية مكثفة مع تدرجات لونية محددة وعمق بصري واقعي (Cinematic volumetric lighting).
+- الإيقاع البصري والمونتاج (Visual Pacing): تناغم حركة المشهد وتوقيت اللقطات مع انسيابية الحركة.
+- المواصفات التقنية: دقة 4K فائقة بمعدل 60 إطاراً في الثانية (4K 60fps cinematic render) ونسبة أبعاد 16:9.`);
+      } else {
+        sections.push(`## Cinematic Video Scene & Narrative Concept:
+${goal}`);
+        sections.push(`## Camera Choreography & Visual Direction:
+- Camera Motion & Optics: Dynamic low-angle tracking shot, steady gimbal movement, seamless camera perspective transitions.
+- Lighting & Atmosphere: Volumetric moody lighting, cinematic color grading, rich dynamic contrast.
+- Visual Pacing & Staging: Deliberate temporal rhythm, fluid motion blur, calibrated scene velocity.
+- Production Specifications: 4K UHD, 60fps master, 16:9 cinematic aspect ratio, realistic physics simulation.`);
+      }
+      return sections.join("\n\n");
+    }
+
+    if (category === "automation") {
+      if (isAr) {
+        sections.push(`## 1. بيان المهمة وسير العمل المؤتمت:
+${goal}`);
+        sections.push(`## 2. معايير الموثوقية، وإدارة الأخطاء، ومعالجة التكرار:
+- سياسة إعادة المحاولة التراكمية (Exponential backoff retry policy) مع حماية ضد الازدحام.
+- ضمان التكرارية الآمنة (Idempotency keys) لمنع ازدواجية معالجة الأحداث والمدفوعات.
+- معالجة الأحداث الفاشلة عبر طابور الرسائل الميتة (Dead-letter queue) والتنبيهات الفورية عند حدوث أخطاء.
+- التحقق الصارم من توقيع الـ Webhooks والتحقق من صحة حمولة البيانات (Payload validation).`);
+        sections.push(`## 3. خريطة المراحل التنفيذية:
+- تعريف نقاط النهاية وأحداث الإطلاق (Trigger & Webhook endpoints).
+- هيكلة تدفق البيانات والتعامل مع الفشل وأخطاء الشبكة.`);
+      } else {
+        sections.push(`## 1. Automation Workflow & Integration Directive:
+${goal}`);
+        sections.push(`## 2. Reliability, Idempotency & Failure Handling Protocols:
+- Implement exponential backoff retry policies with transient failure tolerance.
+- Enforce strict idempotency key tracking to guarantee exactly-once processing across webhooks and jobs.
+- Direct permanent exceptions into a dead-letter queue with automated alerting for unrecoverable errors.
+- Cryptographic signature verification and strict payload boundary validation on all ingestion points.`);
+        sections.push(`## 3. Implementation Roadmap & Acceptance Gates:
+- Webhook trigger ingestion, secret verification, and event deduplication.
+- Comprehensive error boundaries, network timeout handling, and worker queue policies.`);
+      }
+      return sections.join("\n\n");
+    }
+
     // General Professional
     if (isAr) {
       sections.push(`## 1. الهدف الأساسي:
@@ -267,6 +317,42 @@ ${goal}
   }
 
   _buildExpertPrompt(goal, isAr, category) {
+    if (category === "automation") {
+      if (isAr) {
+        return `## التوجيه الهندسي المتقدم لأتمتة سير العمل والأنظمة:
+
+### 1. بيان المهمة والهدف الأوتوماتيكي:
+${goal}
+
+### 2. معايير الموثوقية، وإدارة الأخطاء، ومعالجة التكرار:
+- سياسة إعادة المحاولة التراكمية (Exponential backoff retry policy) مع حماية ضد الازدحام.
+- ضمان التكرارية الآمنة (Idempotency keys) لمنع ازدواجية معالجة الأحداث والمدفوعات.
+- معالجة الأحداث الفاشلة عبر طابور الرسائل الميتة (Dead-letter queue) والتنبيهات الفورية عند حدوث أخطاء.
+- التحقق الصارم من توقيع الـ Webhooks والتحقق من صحة حمولة البيانات (Payload validation).
+
+### 3. خريطة المراحل التنفيذية:
+1. تعريف نقاط النهاية وأحداث الإطلاق (Trigger & Webhook endpoints).
+2. هيكلة تدفق البيانات والتعامل مع الفشل وأخطاء الشبكة.
+3. معايير قبول دقيقة واختبارات تكامل آلية.`;
+      }
+      return `## Enterprise Workflow Automation & Systems Integration Directive
+
+### 1. Automation Scope & Trigger Objectives:
+${goal}
+
+### 2. Failure Handling, Idempotency & Reliability Protocols:
+- Implement exponential backoff retry policies with transient failure tolerance.
+- Enforce strict idempotency key tracking to guarantee exactly-once processing across webhooks and jobs.
+- Direct permanent exceptions into a dead-letter queue with automated alerting for unrecoverable errors.
+- Cryptographic signature verification and strict payload boundary validation on all ingestion points.
+
+### 3. End-to-End Implementation Blueprint:
+1. Webhook trigger ingestion, secret verification, and event deduplication.
+2. Data transformation, state transitions, and persistent storage synchronization.
+3. Comprehensive error boundaries, network timeout handling, and worker queue policies.
+4. Automated verification test cases and recovery runbooks.`;
+    }
+
     if (isAr) {
       return `## تفويض هندسي متقدم (Advanced Expert Directive)
 

@@ -356,6 +356,18 @@ class App {
     providerManager.subscribe(() => {
       this.updateProviderStatus();
     });
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("ai-provider-retry", (e) => {
+        if (!this.dom.headerAiLabel || !this.dom.headerStatusDot) return;
+        const delaySec = Math.max(1, Math.round((e.detail?.delayMs || 1000) / 1000));
+        this.dom.headerStatusDot.className = "status-dot fallback-dot";
+        this.dom.headerAiLabel.textContent = this.currentLang === "ar"
+          ? `إعادة المحاولة (${delaySec}ث)...`
+          : `Retrying in ${delaySec}s...`;
+      });
+    }
+
     this.updateProviderStatus();
   }
 

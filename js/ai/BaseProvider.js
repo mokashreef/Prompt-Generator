@@ -136,6 +136,81 @@ export class BaseProvider {
   }
 
   /**
+   * Dispatches fetch with automatic timeout, exponential backoff, and jitter for transient HTTP 429 and 503 errors.
+   * @param {string} url
+   * @param {RequestInit} [options]
+   * @param {Object} [retryConfig]
+   * @param {number} [retryConfig.maxRetries=2] - Maximum retry attempts
+   * @param {number} [retryConfig.retryDelayMs=1000] - Base retry delay
+   * @param {number} [retryConfig.maxDelayMs=8000] - Ceiling cap on exponential delay
+   * @param {Function} [retryConfig.onRetry] - Optional notification hook
+   * @returns {Promise<Response>}
+   */
+  async fetchWithTimeout(url, options = {}, {
+    maxRetries = 2,
+    retryDelayMs = 1000,
+    maxDelayMs = 8000,
+    onRetry = null
+  } = {}) {
+    let attempt = 0;
+
+    while (true) {
+      const { signal, cleanup } = this._createTimeoutSignal(options.signal, options.timeoutMs || this.timeoutMs);
+
+      try {
+        const response = await fetch(url, {
+          ...options,
+          signal
+        });
+
+        // Retry on 429 (Rate Limit) or 503 (Service Unavailable)
+        if ((response.status === 429 || response.status === 503) && attempt < maxRetries) {
+          attempt++;
+          const jitter = Math.random() * 200;
+          const delay = Math.min(maxDelayMs, retryDelayMs * Math.pow(2, attempt - 1) + jitter);
+
+          if (typeof onRetry === "function") {
+            onRetry({ attempt, delayMs: Math.round(delay), status: response.status });
+          }
+
+          if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+            try {
+              window.dispatchEvent(new CustomEvent("ai-provider-retry", {
+                detail: { provider: this.id, attempt, delayMs: Math.round(delay), status: response.status }
+              }));
+            } catch (e) {}
+          }
+
+          cleanup();
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          continue;
+        }
+
+        cleanup();
+        return response;
+      } catch (err) {
+        cleanup();
+        if (options.signal && options.signal.aborted) {
+          throw err;
+        }
+
+        if (attempt < maxRetries && (err.name === "TypeError" || err.code === "NETWORK_ERROR")) {
+          attempt++;
+          const jitter = Math.random() * 200;
+          const delay = Math.min(maxDelayMs, retryDelayMs * Math.pow(2, attempt - 1) + jitter);
+          if (typeof onRetry === "function") {
+            onRetry({ attempt, delayMs: Math.round(delay), status: "network_error" });
+          }
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          continue;
+        }
+
+        throw err;
+      }
+    }
+  }
+
+  /**
    * Translates native HTTP error statuses into categorized ProviderError instances.
    * @protected
    */

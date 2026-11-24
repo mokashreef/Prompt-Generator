@@ -56,11 +56,11 @@ export class OllamaProvider extends BaseProvider {
     };
 
     try {
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      const response = await this.fetchWithTimeout(`${this.baseUrl}/chat/completions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-        signal
+        signal: options.signal
       });
 
       if (!response.ok) {

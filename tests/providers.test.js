@@ -114,6 +114,74 @@ export async function runProviderTests() {
   assert(failoverResult.provider === "deterministic_fallback", "Provider reassigned to deterministic_fallback");
   assert(typeof failoverResult.warning === "string" && failoverResult.warning.length > 0, "Failover attaches explanatory warning to result");
 
+  // 6. Exponential Backoff & Retry Queue under HTTP 429/503
+  console.log("\n[6/6] Testing Exponential Backoff and Retry Behavior under HTTP 429/503...");
+  const originalFetch = globalThis.fetch;
+  try {
+    let callCount = 0;
+    const retryEvents = [];
+
+    // Simulate transient HTTP 429: fails twice with 429, succeeds on attempt 3
+    globalThis.fetch = async (url, opts) => {
+      callCount++;
+      if (callCount < 3) {
+        return {
+          status: 429,
+          statusText: "Too Many Requests",
+          ok: false,
+          text: async () => JSON.stringify({ error: { message: "Rate limit exceeded. Please wait." } })
+        };
+      }
+      return {
+        status: 200,
+        statusText: "OK",
+        ok: true,
+        json: async () => ({
+          model: "test-model",
+          choices: [{ message: { content: "Success after retries" }, finish_reason: "stop" }],
+          usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 }
+        })
+      };
+    };
+
+    const testProvider = new PollinationsProvider({ timeoutMs: 5000 });
+    const response = await testProvider.fetchWithTimeout("https://test.local/chat", { method: "POST" }, {
+      maxRetries: 3,
+      retryDelayMs: 20,
+      maxDelayMs: 100,
+      onRetry: (data) => retryEvents.push(data)
+    });
+
+    assert(response.ok === true, "fetchWithTimeout succeeded after transient 429 retries");
+    assert(callCount === 3, "Called fetch exactly 3 times (1 initial + 2 retries)");
+    assert(retryEvents.length === 2, "Recorded 2 retry events");
+    assert(retryEvents[0].attempt === 1 && retryEvents[0].status === 429, "First retry attempt was recorded with status 429");
+    assert(retryEvents[1].attempt === 2 && retryEvents[1].status === 429, "Second retry attempt was recorded with status 429");
+
+    // Test persistent 429 exhaust retries
+    let exhaustedCallCount = 0;
+    globalThis.fetch = async () => {
+      exhaustedCallCount++;
+      return {
+        status: 429,
+        statusText: "Too Many Requests",
+        ok: false,
+        text: async () => "Rate limit permanently exceeded"
+      };
+    };
+
+    const exhaustedResponse = await testProvider.fetchWithTimeout("https://test.local/chat", { method: "POST" }, {
+      maxRetries: 2,
+      retryDelayMs: 10,
+      maxDelayMs: 50
+    });
+
+    assert(exhaustedResponse.status === 429, "Returns final 429 response when retries are exhausted");
+    assert(exhaustedCallCount === 3, "Attempted initial request plus 2 retries before returning");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
   console.log(`\nALL PROVIDER TESTS PASSED (${passed}/${total}) ✓\n`);
   return { passed, total };
 }

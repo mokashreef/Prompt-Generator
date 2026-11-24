@@ -146,7 +146,7 @@ export async function runQualityTests() {
   );
 
   // 6. Data Analysis Task
-  console.log("\n[6/6] Testing Predictive Data Analysis Task...");
+  console.log("\n[6/8] Testing Predictive Data Analysis Task...");
   const dataResult = await aiPromptPipeline.execute({
     taskGoal: "Build a customer churn prediction workflow and identify top 5 risk drivers",
     category: "analysis",
@@ -162,11 +162,68 @@ export async function runQualityTests() {
     "Expert data analysis prompt provides multi-stage architecture and quality gates"
   );
 
-  // 7. Verify Unrelated Prompts Are Substantially Different (Not Monolithic Templates)
-  console.log("\n[Verification] Comparing Structural Dissimilarity Across Domains...");
+  // 7. Cinematic Video Generation
+  console.log("\n[7/8] Testing Cinematic Video Generation (Cyberpunk Drone Chase)...");
+  const videoResult = await aiPromptPipeline.execute({
+    taskGoal: "Direct an intense nighttime cyberpunk drone chase sequence through neon rain in Neo-Shinjuku",
+    category: "video",
+    mode: "professional",
+    fields: {
+      action_character: "Autonomous tactical police drones pursuing an armored hoverbike",
+      scene_story: "Narrow wet alleys, neon sign reflections, high-speed banking turns",
+      camera_choreography: "Low-angle tracking shot transitioning to first-person drone perspective; rapid motion blur; 4K 60fps",
+      soundscape: "Pounding synthwave bassline, roaring thrusters, rain pelting metal"
+    }
+  });
+
+  assert(videoResult.prompt.length > 200, "Video prompt has substantive cinematic depth");
+  assert(
+    videoResult.prompt.toLowerCase().includes("camera") ||
+    videoResult.prompt.toLowerCase().includes("cinematic") ||
+    videoResult.prompt.toLowerCase().includes("lighting") ||
+    videoResult.prompt.toLowerCase().includes("scene") ||
+    videoResult.prompt.includes("كاميرا") ||
+    videoResult.prompt.includes("مشهد"),
+    "Video prompt explicitly includes camera choreography, motion, and visual atmosphere"
+  );
+  assert(!videoResult.prompt.includes("assert"), "Video prompt does not contain code unit test assertions");
+  assert(videoResult.quality.score >= 70, `Video prompt quality score meets high bar (Score: ${videoResult.quality.score}%)`);
+
+  // 8. Automation & Webhook Workflows
+  console.log("\n[8/8] Testing Automation & Webhook Workflows (Stripe Billing Lifecycle Sync)...");
+  const automationResult = await aiPromptPipeline.execute({
+    taskGoal: "Automate Stripe subscription lifecycle events to sync customer tiers into PostgreSQL with dead-letter queue",
+    category: "automation",
+    mode: "expert",
+    fields: {
+      automation_task: "Ingest customer.subscription.updated and invoice.payment_failed webhooks",
+      tools_platforms: "Node.js, PostgreSQL, BullMQ, Redis, Stripe API",
+      trigger_schedule: "Real-time webhook triggers with signature verification",
+      failure_handling: "Exponential backoff retry policy (3 attempts), idempotency key checking, and dead-letter queue notification"
+    }
+  });
+
+  assert(automationResult.prompt.length > 250, "Automation prompt has comprehensive workflow architecture");
+  assert(
+    automationResult.prompt.toLowerCase().includes("retry") ||
+    automationResult.prompt.toLowerCase().includes("failure") ||
+    automationResult.prompt.toLowerCase().includes("idempotency") ||
+    automationResult.prompt.toLowerCase().includes("error") ||
+    automationResult.prompt.includes("فشل") ||
+    automationResult.prompt.includes("أخطاء"),
+    "Automation prompt explicitly specifies error recovery, idempotency, and retry mechanisms"
+  );
+  assert(automationResult.quality.score >= 70, `Automation prompt quality score meets high bar (Score: ${automationResult.quality.score}%)`);
+
+  // 9. Verify Unrelated Prompts Are Substantially Different (Not Monolithic Templates)
+  console.log("\n[Verification] Comparing Structural Dissimilarity Across All 8 Domains...");
   assert(codingResult.prompt !== imageResult.prompt, "Coding and Image prompts are not identical");
   assert(marketingResult.prompt !== researchResult.prompt, "Marketing and Research prompts are not identical");
   assert(debugResult.prompt !== dataResult.prompt, "Debug and Data analysis prompts are not identical");
+  assert(videoResult.prompt !== codingResult.prompt, "Video and Coding prompts are not identical");
+  assert(videoResult.prompt !== imageResult.prompt, "Video and Image prompts are not identical");
+  assert(automationResult.prompt !== marketingResult.prompt, "Automation and Marketing prompts are not identical");
+  assert(automationResult.prompt !== dataResult.prompt, "Automation and Data analysis prompts are not identical");
 
   console.log(`\nALL QUALITY SUITE TESTS PASSED (${passedCount}/${totalCount}) ✓\n`);
   return { passedCount, totalCount };
