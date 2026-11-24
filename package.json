@@ -1,6 +1,6 @@
 {
   "name": "prompt-generator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A lightweight, privacy-first local prompt generator and enhancer with a local Prompt Engine and Chrome Extension.",
   "author": "Mohammad Abu Khashreef (https://github.com/mokashreef)",
   "homepage": "https://github.com/mokashreef/Prompt-Generator",

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Prompt Generator - Smart Prompt Engineering",
   "short_name": "PromptGen",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Enhance, rewrite, and structure prompts locally in your browser. 100% offline, zero AI APIs, zero external telemetry.",
   "offline_enabled": true,
   "minimum_chrome_version": "116",
